@@ -214,6 +214,10 @@ enum class Kernel64(
     /** The own-vendor files (see [ownVendorAssets]) also go under a generic system image, which brings no vendor
      *  side at all: from 12 on the system has no VNDK the 8.1-built HALs of the base set could link against. */
     val ownVendorUnderGsi: Boolean = false,
+    /** The runner of this tag ships the bproto2 client (`native/guestshim/bridge.c`), so the host may fall back to
+     *  it for the channels whose wire format is ours (prop service, clipboard, power, lmkd). Off for the tags built
+     *  before 9, which keeps `run64.c` untouched and lets the guest live on the legacy sockets alone. */
+    val bridgeV1: Boolean = false,
 ) {
     // Android 5.0: starts as kernel 23
     A5_0("21", 21..21, registeredNetwork = true, eglCfgTags = true, trafficAccounting = true, treble = false, eglDir = "system/lib64/egl", gles = "1", absentFeatures = emptyList(),
@@ -281,7 +285,7 @@ enum class Kernel64(
     // Android 9 over the vendor side of 8.1, which is what a generic system image of 9 is made for: the HALs are the
     // ones of kernel 27 (copied, so that the two can part), and the system finds its copy of their libraries by the
     // VNDK version the vendor side declares.
-    A9("28", 28..28, gpuBridge64 = true, webView64 = true, bridgeAsEmulation = true, qcomHandles = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A9("28", 28..28, gpuBridge64 = true, webView64 = true, bridgeAsEmulation = true, qcomHandles = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         // (MIUI's system_server and the touch controller's lockdown bytes: as on 8.1)
         procFiles = mapOf("tp_lockdown_info" to "4636320131320200\n"),
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
@@ -299,7 +303,7 @@ enum class Kernel64(
             // (and the buffer mapper for 32-bit programs: the engine has that one built for 8.1 only)
             "vendor#lib#hw#android.hardware.graphics.mapper@2.0-impl.so")),
     // Android 10: starts as kernel 28 (the 8.1 vendor side under a generic system image)
-    A10("29", 29..29, gpuBridge64 = true, webView64 = true, qcomHandles = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A10("29", 29..29, gpuBridge64 = true, webView64 = true, qcomHandles = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // netd of 10 waits for the eBPF loader, which has nothing to load into the phone's kernel from here: the
         // programs are declared loaded, and the device as one that shipped with 8.1 (as its vendor side says), for
@@ -335,7 +339,7 @@ enum class Kernel64(
             // (the passthrough lookup takes any "-impl*.so": Qualcomm's one waits for the secure world forever)
             "vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so")),
     // Android 11: starts as kernel 29
-    A11("30", 30..30, webView64 = true, derivedIdentity = true, clientComposition = true, gpuBridge64 = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A11("30", 30..30, webView64 = true, derivedIdentity = true, clientComposition = true, gpuBridge64 = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // APEX packages are unpacked by the engine into plain directories: "not updatable" is the mode in which apexd
         // and the package manager take them that way instead of mounting package files
@@ -366,7 +370,7 @@ enum class Kernel64(
         // (the passthrough lookup takes any "-impl*.so": Qualcomm's ones wait for the secure world forever)
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 12: starts as kernel 30
-    A12("31", 31..31, derivedIdentity = true, gpuBridge64 = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A12("31", 31..31, derivedIdentity = true, gpuBridge64 = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         props = mapOf("ro.treble.enabled" to "false", "bpf.progs_loaded" to "1", "ro.product.first_api_level" to "27", "debug.stagefright.c2inputsurface" to "1",
@@ -385,7 +389,7 @@ enum class Kernel64(
             "vendor#lib#libavservices_minijail_vendor.so", "vendor#lib#libmediacodecservice.so", "vendor#lib#libminijail_vendor.so"),
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 13: a copy of the kernel of 12 (its own from here on)
-    A13("33", 33..33, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A13("33", 33..33, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         props = mapOf("ro.treble.enabled" to "false", "bpf.progs_loaded" to "1", "ro.product.first_api_level" to "27", "debug.stagefright.c2inputsurface" to "1",
@@ -404,7 +408,7 @@ enum class Kernel64(
             "vendor#lib#libavservices_minijail_vendor.so", "vendor#lib#libmediacodecservice.so", "vendor#lib#libminijail_vendor.so"),
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 14: a copy of the kernel of 13 (its own from here on)
-    A14("34", 34..34, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A14("34", 34..34, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         props = mapOf("ro.treble.enabled" to "false", "bpf.progs_loaded" to "1", "ro.product.first_api_level" to "27", "debug.stagefright.c2inputsurface" to "1",
@@ -434,7 +438,7 @@ enum class Kernel64(
             "vendor#lib64#libhidltransport.so", "vendor#lib64#libhwbinder.so", "vendor#lib#libhidltransport.so", "vendor#lib#libhwbinder.so"),
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 15: a copy of the kernel of 14 (its own from here on)
-    A15("35", 35..35, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A15("35", 35..35, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         props = mapOf("ro.treble.enabled" to "false", "bpf.progs_loaded" to "1", "ro.product.first_api_level" to "27", "debug.stagefright.c2inputsurface" to "1",
@@ -474,7 +478,7 @@ enum class Kernel64(
             "vendor#lib64#libhidltransport.so", "vendor#lib64#libhwbinder.so", "vendor#lib#libhidltransport.so", "vendor#lib#libhwbinder.so"),
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 16: a copy of the kernel of 15 (its own from here on)
-    A16("36", 36..36, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A16("36", 36..36, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         props = mapOf("ro.treble.enabled" to "false", "bpf.progs_loaded" to "1", "ro.product.first_api_level" to "27", "debug.stagefright.c2inputsurface" to "1",
@@ -514,7 +518,7 @@ enum class Kernel64(
             "vendor#lib64#libhidltransport.so", "vendor#lib64#libhwbinder.so", "vendor#lib#libhidltransport.so", "vendor#lib#libhwbinder.so"),
         firmwareAside = listOf("vendor#lib64#hw#android.hardware.keymaster@3.0-impl-qti.so", "vendor#lib64#hw#android.hardware.gatekeeper@1.0-impl-qti.so")),
     // Android 17: a copy of the kernel of 16 (its own from here on)
-    A17("37", 37..37, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2",
+    A17("37", 37..37, volumeAtUserStart = true, derivedIdentity = true, oneIncludePolicy = true, webViewSingleProcess = true, registeredNetwork = true, treble = true, eglDir = "vendor/lib64/egl", gles = "2", bridgeV1 = true,
         absentFeatures = listOf("consumerir", "fingerprint", "nfc", "nfc.hce", "nfc.hcef", "bluetooth", "bluetooth_le"), trafficAccounting = true, noQemuPipe = true, binderVold = true,
         // (12 has no VNDK 27 any more: the 8.1 vendor side links against the oldest one there is)
         // (17: HintManagerService parses ro.vendor.api_level without a default; init derives it on a device, and the

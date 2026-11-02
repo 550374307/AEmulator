@@ -45,6 +45,11 @@ data class VmSettings(
     val imei: String = "",
     /** extra qemu options; KEY=VALUE tokens are passed as environment variables */
     val qemuArgs: String = "",
+    /**
+     * Host services this instance may reach over the bridge, by name (see
+     * [HostServices]). Persisted so tightening one VM does not touch the others.
+     */
+    val hostCaps: Set<String> = DEFAULT_HOST_CAPS,
 ) {
     fun toJson(): JSONObject = JSONObject()
         .put("width", width).put("height", height).put("density", density)
@@ -53,8 +58,12 @@ data class VmSettings(
         .put("showFrame", showFrame).put("showNavBar", showNavBar).put("navKeys", navKeys).put("navSize", navSize)
         .put("keepScreenOn", keepScreenOn).put("showLed", showLed).put("mtMode", mtMode).put("legacyEngine", legacyEngine)
         .put("ramMb", ramMb).put("radio", radio).put("native32", native32).put("imei", imei).put("qemuArgs", qemuArgs)
+        .put("hostCaps", JSONArray(hostCaps.sorted()))
 
     companion object {
+        /** Kept here so `image.json` from before the bridge still grants the safe set. */
+        val DEFAULT_HOST_CAPS: Set<String> = HostServices.DEFAULT_CAPS
+
         const val NAV_DEFAULT = "back,home,recents,menu"
         val NAV_ALL = listOf("back", "home", "recents", "menu", "search", "voldown", "volup", "power", "dpad")
 
@@ -97,6 +106,9 @@ data class VmSettings(
                 native32 = o.optBoolean("native32", false),
                 imei = o.optString("imei", ""),
                 qemuArgs = o.optString("qemuArgs", ""),
+                hostCaps = o.optJSONArray("hostCaps")?.let { a ->
+                    (0 until a.length()).mapNotNull { a.optString(it).takeIf { s -> s.isNotEmpty() } }.toSet()
+                } ?: d.hostCaps,
             )
         }
     }

@@ -17,3 +17,7 @@ keystore.properties
 *.keystore
 release-apks/
 .kotlin/
+
+# артефакты host-теста моста (native/guestshim/build.sh hosttest)
+native/guestshim/ab_host_test
+native/guestshim/ab_host_test.exe

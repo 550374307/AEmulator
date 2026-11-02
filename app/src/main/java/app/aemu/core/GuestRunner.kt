@@ -103,6 +103,9 @@ class GuestRunner(
             e["AEMU64_VNDBINDER"] = paths.vndbinderSock.absolutePath
         }
         e["AEMU64_INPUT"] = paths.inputSock.absolutePath
+        // bproto2 rendezvous socket (BridgeProto / native/guestshim/bridge.c). Only exported where the
+        // kernel tag declares bridgeV1: old runners have no client and no socket to lose.
+        if (kernel.bridgeV1) e["AEMU64_BRIDGE"] = paths.socket("aemu_bridge").absolutePath
         paths.nativeBin("libqemu_arm.so").takeIf { it.canExecute() }?.let { e["AEMU64_QEMU"] = it.absolutePath }
         sdcardHost?.let { e["AEMU64_SDCARD"] = it.absolutePath }
         if (img.settings.gpu && kernel.gpuBridge32 != null) {

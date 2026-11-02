@@ -1,9 +1,13 @@
 package app.aemu.core
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.os.Process as AProcess
 import android.os.SystemClock
 import android.view.Surface
+import app.aemu.core.EndpointRegistry.Endpoint
+import app.aemu.core.EndpointRegistry.Protocol
 import dev.lk.dhd.BinderSlot
 import dev.lk.dhd.GlSlot
 import dev.lk.dhd.Slot
@@ -117,6 +121,77 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
     private val dns = DnsProxy(paths, img.api, img.engine == Engine.N64 && Kernel64.forApi(img.api).dnsLayoutProbe, ::log)
     val runner by lazy { GuestRunner(paths, img) }
 
+    /**
+     * Every guest-visible socket this VM serves, in one list: started in declaration order,
+     * stopped in reverse, and reportable to the info screen. The wire protocols are *not*
+     * unified — `rild`, `vold` and `dnsproxyd` speak whatever the guest firmware expects, and
+     * only `aemu_bridge` speaks bproto2 (see [BridgeProto]).
+     */
+    val endpoints = EndpointRegistry(::log)
+
+    /** The closed set of host capabilities the guest may reach through `aemu_bridge`. */
+    val hostServices = HostServices(::log)
+
+    private val bridge = Bridge(
+        "${engine.name.lowercase()}-${img.api}",
+        hostServices,
+        { AProcess.myPid() },
+        // LMKD bodies go straight to the real killer: the guest's own framework has no other
+        // way to ask (its lmkd binary is not part of the image).
+        { body -> lmk?.handle(body) ?: BridgeProto.err(BridgeProto.ENOENT) },
+        ::log,
+    )
+    private val bridgeLink = BridgeLink(BridgeLink.hostPath(paths), bridge, ::log)
+
+    init {
+        // The three built-in services exist always; which of them a guest may actually use is
+        // per instance and persisted in image.json as `hostCaps`.
+        hostServices.builtins(HostBridge())
+        hostServices.grant(img.settings.hostCaps)
+    }
+
+    /**
+     * `HostServices.Host` over this VM's real host objects. This is the only place where a
+     * bridge operation turns into an Android call, and every method here is a deliberate,
+     * named capability — the inverse of VMOS' reflective `SampleRomService`.
+     */
+    private inner class HostBridge : HostServices.Host {
+        override fun propGet(key: String): String? = props.get(key)
+        override fun propSet(key: String, value: String): Boolean = props.put(key, value)
+        override fun propList(): List<Pair<String, String>> = props.area?.all() ?: emptyList()
+
+        override fun power(op: Int): Boolean {
+            // Both of these end the VM, so they go through the one path that already knows how
+            // to tear it down: powerRequest() reads "reboot"/"poweroff" off /dev/aemu_power too.
+            // Returning false means "already asked" — the VM is on its way out, not an error.
+            val cmd = when (op) {
+                BridgeProto.POWER_REBOOT -> "reboot"
+                BridgeProto.POWER_SHUTDOWN -> "poweroff"
+                // Wake is *not* onPower(): the only thing this VM's onPower does with a false
+                // first argument is stop itself (`VmActivity: if (reboot) rebootVm() else
+                // stopVm()`), so forwarding a wake request there would turn "wake up" into
+                // "power off". The guest's own PowerManager owns its screen state, and the
+                // display it drives is a Surface the host is already presenting.
+                BridgeProto.POWER_WAKE -> return true
+                else -> return false
+            }
+            if (powerHandled) return false
+            powerRequest(cmd)
+            return true
+        }
+
+        override fun clipGet(): String? = runCatching {
+            ctx.getSystemService(ClipboardManager::class.java)?.primaryClip
+                ?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(ctx)?.toString()
+        }.getOrNull()
+
+        override fun clipSet(text: String): Boolean = runCatching {
+            ctx.getSystemService(ClipboardManager::class.java)
+                ?.setPrimaryClip(ClipData.newPlainText("aemu", text))
+            true
+        }.getOrDefault(false)
+    }
+
     private val extraStubs = ArrayList<VoldStub>()
     private val procs = LinkedHashMap<String, Process>()
     private val lazyStarts = HashMap<String, Int>()
@@ -129,6 +204,11 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
         if (state == State.BOOTING || state == State.RUNNING || state == State.PREPARING) return
         stopping = false
         failure = null
+        // A reboot reuses this instance (VmActivity's retry button does vm.stop(); vm.boot()),
+        // so the declarations from the previous boot — and the settings their lambdas closed
+        // over — are stale. startAll() would otherwise keep the first "rild" registered with
+        // the old radio flag and never start the new one.
+        endpoints.reset()
         setState(State.PREPARING)
         try {
             if (recoveryMode) doRecovery() else doBoot()
@@ -159,7 +239,17 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
         RecoveryImage.prepare(paths, sd, settings)
         input.rateHz = settings.touchHz
         input.mtMode = settings.mtMode
-        input.serve()
+        // Declared through the registry, not called directly: recovery is a boot mode of the
+        // same instance, and [stopAll] is what closes these sockets. A bare input.serve()
+        // here left a bound socket behind that nothing owned — the leak the registry exists
+        // to prevent.
+        endpoints.register(Endpoint(
+            name = "input",
+            path = paths.inputSock.absolutePath,
+            start = { input.serve() },
+            stop = { input.stop() },
+        ))
+        endpoints.startAll(img.api)
         // recovery's minui opens /dev/input/event* through openat():
         // a FIFO there gets the raw input_event stream straight from InputService
         runCatching {
@@ -446,15 +536,74 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
         props.onCtl = { start, svc -> onCtl(start, svc) }
 
         // 3. службы хоста
-        props.serve()
+        // Every guest-visible socket is declared here, in start order, and stopped in reverse by
+        // the registry. Their wire formats are untouched: property_service / rild / vold /
+        // dnsproxyd keep whatever the guest firmware expects, because the guest binary is what
+        // defines them. Only `aemu_bridge` speaks bproto2, and only where the kernel tag ships
+        // the client (bridgeV1 == api 28+).
         input.rateHz = s.touchHz
         input.mtMode = s.mtMode
         input.wide = engine == Engine.N64
-        input.serve()
-        frames.serve()
-        if (s.radio) ril.serve() else log("radio: emulation disabled in settings")
-        vold.serve()
+        endpoints.register(Endpoint(
+            name = "property_service",
+            path = paths.socket("property_service").absolutePath,
+            start = { props.serve() },
+            stop = { props.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "input",
+            path = paths.inputSock.absolutePath,
+            start = { input.serve() },
+            stop = { input.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "frame",
+            path = paths.frameSock.absolutePath,
+            start = { frames.serve() },
+            stop = { frames.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "rild",
+            path = paths.socket("rild").absolutePath,
+            start = {
+                if (s.radio) ril.serve()
+                else true.also { log("radio: emulation disabled in settings") }
+            },
+            stop = { ril.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "vold",
+            path = paths.socket("vold").absolutePath,
+            start = { vold.serve() },
+            stop = { vold.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "dnsproxyd",
+            path = paths.socket("dnsproxyd").absolutePath,
+            fromApi = 14,
+            start = { runCatching { dns.ensure() }.isSuccess },
+            stop = { dns.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "aemu_cam",
+            path = paths.socket("aemu_cam").absolutePath,
+            start = { camera.start() },
+            stop = { camera.stop() },
+        ))
+        endpoints.register(Endpoint(
+            name = "aemu_bridge",
+            path = BridgeLink.hostPath(paths).absolutePath,
+            protocol = Protocol.BRIDGE,
+            fromApi = 28,
+            seq = true,
+            start = { bridgeLink.start() },
+            stop = { bridgeLink.stop() },
+            clients = { bridgeLink.clients() },
+        ))
+        endpoints.startAll(img.api)
         // у vold производителей бывают дополнительные сокеты (Samsung: usbstorage, enc_report) — отвечаем «ладно»
+        // They are discovered from init.rc at boot time, so they live outside the registry and
+        // are torn down by [stop] through [extraStubs].
         runCatching {
             // 7.0+ keeps vold (with its cryptd socket) in /system/etc/init
             val rcFiles = listOf(paths.root, File(paths.root, "system/etc/init"))
@@ -485,9 +634,7 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
         lights.start()
         sensors.start()
         mic.start()
-        camera.start()
         if (img.api >= 21) logd.start()
-        if (img.api >= 14) runCatching { dns.ensure() }
         // the RAM the guest is told it has (its /proc/meminfo, scaled by the kernel): the framework sizes its background by it
         if (engine == Engine.N64) runCatching {
             val f = File(paths.root, "dev/.aemu-ram")
@@ -1046,6 +1193,8 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
             while (!stopping) {
                 Thread.sleep(3000)
                 if (power.length() > 0) { val v = runCatching { power.readText().trim() }.getOrDefault("reboot"); power.writeText(""); powerRequest(v) }
+                // The watchdog re-arms dnsproxyd because guest netd unlinks and re-binds it during
+                // boot; it does not start the endpoint, it repairs one that the registry already owns.
                 if (img.api >= 14) runCatching { dns.ensure() }
                 val dead = synchronized(procs) { procs.filter { !it.value.isAlive }.keys.toList() }
                 for (name in dead) {
@@ -1223,7 +1372,11 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
         log("stopping system")
         runCatching { guestRunner.run(listOf("/system/bin/sync"), 5_000) }
         killAll()
-        adb.stop(); props.stop(); input.stop(); frames.stop(); ril.stop(); vold.stop(); audio.stop(); net.stop(); dns.stop(); events.stop(); logd.stop(); lights.stop(); sensors.stop(); mic.stop(); camera.stop(); GlHost.stop()
+        // Reverse declaration order: the bridge goes down first (it is the last thing the guest
+        // is told about), property_service last. Everything stopped here was started by
+        // [endpoints.startAll], so nothing is stopped twice.
+        endpoints.stopAll()
+        adb.stop(); audio.stop(); net.stop(); events.stop(); logd.stop(); lights.stop(); sensors.stop(); mic.stop(); GlHost.stop()
         extraStubs.forEach { it.stop() }; extraStubs.clear()
         lmk?.stop(); lmk = null
         Keeper.release(ctx)

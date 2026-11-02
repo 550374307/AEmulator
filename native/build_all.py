@@ -50,7 +50,7 @@ def main():
     run([clang, "--target=armv7a-linux-androideabi21", "-march=armv7-a", "-mthumb", "-Os", "-fPIC", "-shared",
          "-nostdlib", "-fvisibility=hidden", "-fno-stack-protector", "-ffreestanding", "-fno-builtin",
          "-Wl,--hash-style=sysv", "-Wl,-z,norelro", "-Wl,--no-undefined", "-Wl,-soname,libaemushim.so",
-         "-Wl,--build-id=none", "-o", out_shim, "aemushim.c", "crash.c", "-lc"], cwd=shim_dir)
+         "-Wl,--build-id=none", "-o", out_shim, "aemushim.c", "crash.c", "bridge.c", "-lc"], cwd=shim_dir)
     subprocess.run([strip, out_shim])
 
     out_true = os.path.join(common_dir, "aemu_true.so")

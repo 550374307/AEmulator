@@ -123,6 +123,32 @@ class GuestLmk(private val root: File, private val lowRam: Boolean, private val 
         } finally { runCatching { c.close() } }
     }
 
+    /**
+     * The same two packet types as [lmkdClient], but framed the bridge way:
+     * `{u8 op, i32 pid, i32 uid, i32 adj}` for [BridgeProto.LMK_PRIO] and
+     * `{u8 op, i32 pid}` for [BridgeProto.LMK_REMOVE]. Used by [HostServices] so a
+     * guest that can reach the bridge can report adj without holding /dev/socket/lmkd.
+     */
+    fun handle(body: ByteArray): ByteArray {
+        if (body.isEmpty()) return BridgeProto.err(BridgeProto.EINVAL)
+        val bb = java.nio.ByteBuffer.wrap(body, 1, body.size - 1).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        return when (body[0].toInt() and 0xff) {
+            BridgeProto.LMK_PRIO -> {
+                if (body.size < 13) return BridgeProto.err(BridgeProto.EINVAL)
+                val pid = bb.int
+                bb.int
+                adj[pid] = lmkdAdj(bb.int)
+                BridgeProto.err(BridgeProto.OK)
+            }
+            BridgeProto.LMK_REMOVE -> {
+                if (body.size < 5) return BridgeProto.err(BridgeProto.EINVAL)
+                adj.remove(bb.int)
+                BridgeProto.err(BridgeProto.OK)
+            }
+            else -> BridgeProto.err(BridgeProto.ENOENT)
+        }
+    }
+
     // ---------------------------------------------------------------- убийца
 
     private fun memAvailableMb(): Long = runCatching {
