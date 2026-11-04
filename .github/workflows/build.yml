@@ -179,11 +179,73 @@ jobs:
           sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
           grep -c 'org\.gradle\.java\.home' gradle.properties || echo "pinned JBR path removed"
 
+      # Gradle output is the only place a compile error can explain itself, and this job's log
+      # needs admin rights to download — while check-run annotations are readable by anyone.
+      # So every run tees gradle to a file, and the next step republishes the interesting lines
+      # as annotations. Without this the workflow fails with a bare "exit code 1".
       - name: unit tests
-        run: ./gradlew --no-daemon --stacktrace :app:testStandardDebugUnitTest
+        run: |
+          set +e
+          ./gradlew --no-daemon --stacktrace --console=plain :app:testStandardDebugUnitTest 2>&1 \
+            | tee "$RUNNER_TEMP/gradle.log"
+          rc=${PIPESTATUS[0]}
+          echo "gradle exit $rc"
+          exit "$rc"
+
+      - name: surface the failure as annotations
+        if: failure()
+        run: |
+          LOG="$RUNNER_TEMP/gradle.log"
+          ERR="$RUNNER_TEMP/errs.txt"
+          : > "$ERR"
+          [ -f "$LOG" ] || exit 0
+
+          # Kotlin/Java compile errors: "e: file:///.../X.kt:42:7 message"
+          grep -aE '^e: file:///' "$LOG" | head -40 >> "$ERR" || true
+          # javac style: "/path/X.java:42: error: message"
+          grep -aE '^/.*\.java:[0-9]+: error:' "$LOG" | head -20 >> "$ERR" || true
+          # anything gradle itself rejected, plus failing tasks and failing tests
+          grep -aE '^(FAILURE: |\* What went wrong:|> Task .* FAILED|.*> .*FAILED$)' "$LOG" | head -20 >> "$ERR" || true
+          grep -aE '^\s+[A-Za-z0-9_.]+ > [A-Za-z0-9_]+ FAILED' "$LOG" | head -20 >> "$ERR" || true
+
+          if [ ! -s "$ERR" ]; then
+            # No recognisable error line: publish the tail so the message is not empty.
+            tail -30 "$LOG" > "$ERR"
+            mode=tail
+          else
+            mode=parsed
+          fi
+
+          n=0
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            esc=${line//'%'/'%25'}
+            esc=${esc//$'\r'/}
+            esc=${esc//$'\n'/'%0A'}
+            if [ "$mode" = parsed ]; then
+              file=$(printf '%s' "$line" | sed -n 's|^e: file://\([^:]*\):\([0-9]*\):.*|\1|p')
+              ln=$(printf '%s' "$line" | sed -n 's|^e: file://[^:]*:\([0-9]*\):.*|\1|p')
+            else
+              file=""; ln=""
+            fi
+            if [ -n "$file" ]; then
+              echo "::error file=$file,line=${ln:-1}::$esc"
+            else
+              echo "::error::$esc"
+            fi
+            n=$((n + 1))
+            [ "$n" -ge 25 ] && break
+          done < "$ERR"
+          echo "published $n annotation line(s) from $mode"
 
       - name: assemble debug
-        run: ./gradlew --no-daemon --stacktrace :app:assembleStandardDebug
+        run: |
+          set +e
+          ./gradlew --no-daemon --stacktrace --console=plain :app:assembleStandardDebug 2>&1 \
+            | tee "$RUNNER_TEMP/gradle-assemble.log"
+          rc=${PIPESTATUS[0]}
+          echo "gradle exit $rc"
+          exit "$rc"
 
       - name: upload unit test reports
         if: always()
