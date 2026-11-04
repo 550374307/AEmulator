@@ -43,7 +43,10 @@ class BridgeLink(
     }
 
     companion object {
-        /** Where the guest looks for us: `run64.c`'s `xl()` rewrites `/dev/socket/*` into the image root. */
+        /**
+         * Where the guest looks for us: `run64.c`'s `xl()` rewrites absolute `/dev/socket/` paths
+         * into the image root, so the socket is bound inside the image, not on the host's /dev.
+         */
         const val GUEST_PATH = "/dev/socket/aemu_bridge"
         fun hostPath(paths: VmPaths): File = paths.socket("aemu_bridge")
     }

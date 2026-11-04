@@ -2,9 +2,9 @@ package app.aemu.core
 
 import android.net.LocalServerSocket
 import android.net.LocalSocket
+import android.net.LocalSocketAddress
 import android.system.Os
 import android.system.OsConstants
-import android.system.UnixSocketAddress
 import java.io.File
 import java.io.FileDescriptor
 
@@ -14,8 +14,7 @@ import java.io.FileDescriptor
  * Все дескрипторы помечаются CLOEXEC, иначе они утекают в процессы гостя.
  *
  * [seq] selects `SOCK_SEQPACKET`, where one write is one read — the bridge protocol
- * (see [BridgeProto]) is framed that way. It goes through the public `Os` API rather
- * than `LocalSocket.SOCKET_SEQPACKET`, which is `@hide` and may be refused on 9+.
+ * (see [BridgeProto]) frames one message per datagram and relies on that.
  */
 class UnixServer(
     val file: File,
@@ -24,6 +23,13 @@ class UnixServer(
     private val onClient: (LocalSocket) -> Unit,
 ) {
     @Volatile private var server: LocalServerSocket? = null
+    /**
+     * Strong reference to the socket the server was built from. `LocalServerSocket` takes a
+     * `FileDescriptor`, not the socket, so without this the `LocalSocket` would become
+     * unreachable the moment [start] returns — and its finalizer would close the very
+     * descriptor the server is listening on.
+     */
+    @Volatile private var bound: LocalSocket? = null
     @Volatile var clients = 0
         private set
 
@@ -36,22 +42,16 @@ class UnixServer(
         file.parentFile?.mkdirs()
         file.delete()
         return try {
-            val fd = Os.socket(
-                OsConstants.AF_UNIX,
-                if (seq) OsConstants.SOCK_SEQPACKET else OsConstants.SOCK_STREAM,
-                0,
-            )
-            // Os.socket hands back a raw descriptor with no finalizer behind it: if bind or the
-            // wrapper below throws, nothing else will ever close it, so it is closed here.
-            val s = try {
-                Os.bind(fd, UnixSocketAddress(file.absolutePath))
-                cloexec(fd)
-                runCatching { Os.chmod(file.absolutePath, "666".toInt(8)) }
-                LocalServerSocket(fd)
-            } catch (e: Throwable) {
-                runCatching { Os.close(fd) }
-                throw e
-            }
+            // The socket type has to be chosen at construction, so the socket is created here
+            // and only then handed to LocalServerSocket. LocalSocket.SOCKET_SEQPACKET is public
+            // API (GuestLmk already relies on it), unlike android.system.UnixSocketAddress,
+            // which the SDK stub jar does not export.
+            val ls = LocalSocket(if (seq) LocalSocket.SOCKET_SEQPACKET else LocalSocket.SOCKET_STREAM)
+            ls.bind(LocalSocketAddress(file.absolutePath, LocalSocketAddress.Namespace.FILESYSTEM))
+            cloexec(ls.fileDescriptor)
+            runCatching { Os.chmod(file.absolutePath, "666".toInt(8)) }
+            bound = ls
+            val s = LocalServerSocket(ls.fileDescriptor)
             server = s
             Thread({
                 while (true) {
@@ -76,9 +76,13 @@ class UnixServer(
 
     @Synchronized
     fun stop() {
-        // LocalServerSocket owns the fd it was built from, so closing it is enough.
+        // Both wrap the same descriptor, so the second close is an EBADF after the first —
+        // swallowed on purpose. Closing them in this order keeps the listener gone before the
+        // socket that owns it, and `bound` is still non-null here so no finalizer can race us.
         runCatching { server?.close() }
+        runCatching { bound?.close() }
         server = null
+        bound = null
         clients = 0
     }
 
