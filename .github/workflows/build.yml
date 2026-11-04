@@ -1,12 +1,22 @@
 name: build
 
-# Three things are worth checking on every push, and none of them need a phone:
-#   1. the Android app compiles (compileSdk 36 + AGP 8.13.2 + Kotlin 2.2.21),
-#   2. the JVM unit tests pass — the bridge codec, the host-service whitelist and the
-#      endpoint registry are deliberately free of android.*, so they run on a plain JVM,
-#   3. bridge.c compiles for the real guest ABIs (armv7 with the NDK) and its bproto2
-#      framing round-trips against a mock host. The host test is also run here, on Linux,
-#      where it can use SOCK_SEQPACKET for real instead of the SOCK_STREAM fallback.
+# Three things worth checking on every push, none of which need a phone:
+#   1. the Android app compiles and its JVM unit tests pass (compileSdk 36, AGP 8.13.2,
+#      Kotlin 2.2.21). The bridge codec, the host-service whitelist and the endpoint
+#      registry are deliberately free of android.*, so they run on a plain JVM;
+#   2. bridge.c compiles for the real guest ABI (armv7, NDK) and its bproto2 framing
+#      round-trips against a mock host;
+#   3. the mock host's byte layout matches, checked without a socket so it also runs on
+#      machines whose Python has no AF_UNIX.
+#
+# This is also the only place GuestVm.kt / UnixServer.kt / BridgeLink.kt are ever run
+# through a compiler: they touch android.* and cannot be built on a workstation without
+# the SDK. Everything else in the bridge was already testable off-device.
+#
+# The runner image already ships the Android SDK (ANDROID_HOME=/usr/local/lib/android/sdk,
+# platform 36, build-tools 36.0.0). It is used as-is; only the NDK may need installing,
+# which is why there is no android-actions/setup-android step here — it failed on every
+# run of this workflow and, on a runner that already has the SDK, had nothing to add.
 
 on:
   push:
@@ -21,14 +31,21 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # gradle.properties pins org.gradle.java.home to the maintainer's Android Studio JBR
+  # ("C:/Program Files/Android/Android Studio/jbr"); on a runner that path does not exist
+  # and Gradle dies before running anything. Removed in the checkout-normalising step.
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+
 jobs:
   native:
     name: native (armv7 shim + bproto2 host test)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: bproto2 host test (gcc, SOCK_SEQPACKET)
+      - name: bproto2 host test (host cc, real SOCK_SEQPACKET)
         run: |
           cd native/guestshim
           sh build.sh hosttest
@@ -39,23 +56,52 @@ jobs:
           cd tools/bridge-mock
           python3 selftest.py
 
-      - name: setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: locate sdkmanager
+        id: sdk
+        run: |
+          # The image puts ANDROID_HOME on the runner, but PATH is not guaranteed to carry
+          # cmdline-tools, so resolve sdkmanager once and hand the path to later steps.
+          SM=$(command -v sdkmanager || true)
+          if [ -z "$SM" ]; then
+            for d in "$ANDROID_HOME/cmdline-tools/latest/bin" \
+                     "$ANDROID_HOME/cmdline-tools/12.0/bin" \
+                     "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin"; do
+              if [ -x "$d/sdkmanager" ]; then SM="$d/sdkmanager"; break; fi
+            done
+          fi
+          echo "sdkmanager=$SM" >> "$GITHUB_OUTPUT"
+          echo "resolved: ${SM:-<none>}"
+          ls "$ANDROID_HOME/ndk" 2>/dev/null || true
 
-      - name: install an NDK r28
+      - name: pick an NDK (prefer whatever is already installed)
         id: ndk
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          # r28c, then r28b, then r28: whichever this SDK repository actually offers.
-          # Pinned by hand would break silently when a mirror lags.
+          # r28 is what the checked-in .so files were built with, so use it when the image
+          # happens to have it. Otherwise take the image's default: this step only has to
+          # prove bridge.c compiles cleanly for armv7, and it compiles to a scratch dir,
+          # never over the shipped binaries. Downloading ~1.5 GB to reproduce a build we
+          # do not ship would make the job slow and flaky for no extra coverage.
           for v in 28.2.13676358 28.1.13356709 28.0.13004108; do
-            if sdkmanager --install "ndk;$v" > /dev/null 2>&1; then
+            if [ -d "$ANDROID_HOME/ndk/$v" ]; then
+              echo "ndk=$ANDROID_HOME/ndk/$v" >> "$GITHUB_OUTPUT"
+              echo "using preinstalled NDK $v"
+              exit 0
+            fi
+          done
+          if [ -d "$ANDROID_NDK_HOME/toolchains" ]; then
+            echo "ndk=$ANDROID_NDK_HOME" >> "$GITHUB_OUTPUT"
+            echo "no r28 on the image; using its default NDK at $ANDROID_NDK_HOME"
+            exit 0
+          fi
+          SDK="${{ steps.sdk.outputs.sdkmanager }}"
+          for v in 28.2.13676358 28.1.13356709 28.0.13004108; do
+            if "$SDK" --install "ndk;$v" > /dev/null 2>&1; then
               echo "ndk=$ANDROID_HOME/ndk/$v" >> "$GITHUB_OUTPUT"
               echo "installed NDK $v"
               exit 0
             fi
           done
-          echo "no NDK r28 available from this SDK repository" >&2
+          echo "no usable NDK at all" >&2
           exit 1
 
       - name: compile libaemushim.so for armv7 (bridge.c and all)
@@ -69,10 +115,12 @@ jobs:
           file "$RUNNER_TEMP/out/libaemushim.so" || true
 
       - name: the guest client is actually exported
+        env:
+          NDK_DIR: ${{ steps.ndk.outputs.ndk }}
         run: |
           # ab_call/ab_status/ab_last_len must survive -fvisibility=hidden, or the guest
           # links against a shim that silently has no bridge in it.
-          NM=$(ls "${{ steps.ndk.outputs.ndk }}"/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm)
+          NM=$(ls "$NDK_DIR"/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-nm)
           "$NM" -D --defined-only "$RUNNER_TEMP/out/libaemushim.so" | tee "$RUNNER_TEMP/syms.txt"
           for s in ab_call ab_status ab_last_len; do
             grep -q " $s\$" "$RUNNER_TEMP/syms.txt" || { echo "missing export: $s" >&2; exit 1; }
@@ -81,24 +129,44 @@ jobs:
   android:
     name: android (unit tests + assemble)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: install platform
+      - name: locate sdkmanager and confirm the SDK
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          SM=$(command -v sdkmanager || true)
+          if [ -z "$SM" ]; then
+            for d in "$ANDROID_HOME/cmdline-tools/latest/bin" \
+                     "$ANDROID_HOME/cmdline-tools/12.0/bin"; do
+              if [ -x "$d/sdkmanager" ]; then echo "$d" >> "$GITHUB_PATH"; SM="$d/sdkmanager"; break; fi
+            done
+          fi
+          echo "sdkmanager: ${SM:-<none>}"
+          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools" 2>/dev/null || true
+
+      - name: install anything the image is missing
+        run: |
+          # Everything here is normally preinstalled; this only covers a leaner runner.
+          SM=$(command -v sdkmanager || echo "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager")
+          need=""
+          [ -d "$ANDROID_HOME/platforms/android-36" ] || need="$need platforms;android-36"
+          [ -d "$ANDROID_HOME/build-tools/36.0.0" ] || need="$need build-tools;36.0.0"
+          if [ -n "$need" ]; then
+            yes | "$SM" --licenses > /dev/null 2>&1 || true
+            # shellcheck disable=SC2086
+            "$SM" --install $need
+          else
+            echo "platform 36 and build-tools 36.0.0 already present"
+          fi
 
       - name: gradle cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -108,27 +176,25 @@ jobs:
 
       - name: drop the local Android Studio JBR path
         run: |
-          # gradle.properties pins org.gradle.java.home to the maintainer's machine
-          # ("C:/Program Files/Android/Android Studio/jbr"), which does not exist on a
-          # runner and is a hard failure. Here the JDK comes from setup-java instead.
           sed -i '/^org\.gradle\.java\.home=/d' gradle.properties
+          grep -c 'org\.gradle\.java\.home' gradle.properties || echo "pinned JBR path removed"
 
       - name: unit tests
-        run: ./gradlew --no-daemon :app:testStandardDebugUnitTest
+        run: ./gradlew --no-daemon --stacktrace :app:testStandardDebugUnitTest
 
       - name: assemble debug
-        run: ./gradlew --no-daemon :app:assembleStandardDebug
+        run: ./gradlew --no-daemon --stacktrace :app:assembleStandardDebug
 
       - name: upload unit test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: unit-test-reports
           path: app/build/reports/tests/**
           if-no-files-found: ignore
 
       - name: upload apk
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: aemu-standard-debug
           path: app/build/outputs/apk/**/*.apk
