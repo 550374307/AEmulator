@@ -30,3 +30,15 @@
 - Naprawione menu z trzema kropkami w uruchomionym systemie: zrzuty ekranu, nagrywanie ekranu, VNC, SMS, tryb samolotowy, instalacja APK i więcej.
 - Przycisk menu można przesuwać w uruchomionym systemie.
 - Opcja ukrycia wskaźnika LED: w ustawieniach domyślnych nowych systemów i dla każdego systemu.
+
+### Usługi hosta
+- Każdy gniazdo widoczne dla gościa jest teraz deklarowane w jednym miejscu (`EndpointRegistry`) i uruchamiane w kolejności deklaracji, więc lista usług i ich stan na żywo mają jedno źródło. Ponowne uruchomienie instancji nie dziedziczy już deklaracji z poprzedniego startu.
+- Nowe gniazdo sterujące `aemu_bridge` (bproto2) obok dotychczasowych punktów końcowych: właściwości, zasilanie, schowek i zabójca małej pamięci, każde z własnym bajtem op. Stare protokoły (`rild`, `vold`, `dnsproxyd`, `lmkd`) pozostają nietknięte.
+- Usługi hosta są przyznawane dla instancji z zamkniętego zbioru zdolności (`hostCaps` w ustawieniach obrazu); usługa nieprzyznana odpowiada `EPERM`, a ścieżka rozdysponowania nie używa refleksji.
+- Tryb odzyskiwania nie zostawia już po wyjściu związanego gniazda wejścia.
+- Poprawiono układ `ab_hello_rep`: rekord ma 76 bajtów na łączu (2 bajty dopełnienia przed `pid`), a nie 74. Statyczne zapewnienie C11 sprawia teraz, że kompilacja się nie powiedzie, jeśli to się znowu zmieni.
+- `lmkd` można teraz naprawdę przyznać: żyje poza tabelą usług hosta, ale w zbiorze zdolności, a przyznanie, które do niczego nie pasowało, znikało wcześniej po cichu.
+
+### Kompilacja
+- GitHub Actions buduje przy każdym pushu: test hosta mostu (gcc, `SOCK_SEQPACKET`), autotest układu bajtów atrapy hosta (Python), kompilację `libaemushim.so` dla armv7 z kontrolą eksportów `ab_call`/`ab_status`/`ab_last_len`, następnie testy jednostkowe JVM i APK debug.
+- Niepowodzenia kompilacji są ponownie publikowane jako adnotacje kontroli, ponieważ logi zadań w publicznym repozytorium wymagają uprawnień administratora do odczytu.

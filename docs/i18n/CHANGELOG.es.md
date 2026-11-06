@@ -30,3 +30,15 @@
 - Menú de tres puntos corregido en un sistema en ejecución: capturas, grabación de pantalla, VNC, SMS, modo avión, instalación de APK y más.
 - El botón de menú se puede mover en un sistema en ejecución.
 - Opción para ocultar el indicador LED: en los valores predeterminados de sistemas nuevos y por sistema.
+
+### Servicios del host
+- Todos los sockets visibles para el invitado se declaran ahora en un solo lugar (`EndpointRegistry`) y se inician en orden de declaración, así que la lista de servicios y su estado en vivo tienen una única fuente. Reiniciar una instancia ya no hereda las declaraciones del arranque anterior.
+- Nuevo socket de control `aemu_bridge` (bproto2) junto a los endpoints existentes: propiedades, energía, portapapeles y el matador de poca memoria, cada uno con su propio byte de operación. Los protocolos antiguos (`rild`, `vold`, `dnsproxyd`, `lmkd`) no se tocan.
+- Los servicios del host se conceden por instancia desde un conjunto cerrado de capacidades (`hostCaps` en los ajustes de la imagen); un servicio no concedido responde `EPERM`, y la ruta de despacho no usa reflexión.
+- El modo de recuperación ya no deja un socket de entrada vinculado tras salir.
+- Corregida la disposición de `ab_hello_rep`: el registro mide 76 bytes en el cable (2 bytes de relleno antes de `pid`), no 74. Una aserción estática de C11 ahora rompe la compilación si vuelve a cambiar.
+- `lmkd` ya se puede conceder de verdad: vive fuera de la tabla de servicios del host pero dentro del conjunto de capacidades, y una concesión que no coincidía con nada desaparecía en silencio.
+
+### Compilación
+- GitHub Actions compila en cada push: la prueba de host del puente (gcc, `SOCK_SEQPACKET`), la autoprueba de disposición de bytes del host simulado (Python), una compilación armv7 de `libaemushim.so` con verificación de exportación de `ab_call`/`ab_status`/`ab_last_len`, y luego las pruebas unitarias de JVM y un APK de depuración.
+- Los fallos de compilación se republican como anotaciones de comprobación, porque los registros de tareas en un repositorio público necesitan permisos de administrador para leerse.

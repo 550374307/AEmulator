@@ -30,3 +30,15 @@
 - Menu a tre puntini corretto nel sistema avviato: screenshot, registrazione dello schermo, VNC, SMS, modalità aereo, installazione APK e altro.
 - Il pulsante del menu si può spostare nel sistema avviato.
 - Opzione per nascondere l’indicatore LED: nelle impostazioni predefinite dei nuovi sistemi e per ogni sistema.
+
+### Servizi host
+- Ogni socket visibile all'ospite è ora dichiarata in un solo posto (`EndpointRegistry`) e avviata nell'ordine di dichiarazione, così l'elenco dei servizi e il loro stato live hanno un'unica fonte. Riavviare un'istanza non eredita più le dichiarazioni dell'avvio precedente.
+- Nuova socket di controllo `aemu_bridge` (bproto2) accanto agli endpoint esistenti: proprietà, alimentazione, appunti e killer della memoria bassa, ciascuno con il proprio byte di operazione. I protocolli storici (`rild`, `vold`, `dnsproxyd`, `lmkd`) restano intatti.
+- I servizi host sono concessi per istanza da un insieme chiuso di capacità (`hostCaps` nelle impostazioni dell'immagine); un servizio non concesso risponde `EPERM` e il percorso di distribuzione non usa alcuna riflessione.
+- La modalità di ripristino non lascia più una socket di input ancora associata dopo l'uscita.
+- Corretto il layout di `ab_hello_rep`: il record è di 76 byte sul filo (2 byte di riempimento prima di `pid`), non 74. Un'asserzione statica C11 ora fa fallire la build se dovesse cambiare di nuovo.
+- `lmkd` ora può davvero essere concesso: vive fuori dalla tabella dei servizi host ma dentro l'insieme delle capacità, e una concessione che non corrispondeva a nulla spariva in silenzio.
+
+### Compilazione
+- GitHub Actions compila a ogni push: il test host del ponte (gcc, `SOCK_SEQPACKET`), l'autotest del layout dei byte dell'host finto (Python), una compilazione armv7 di `libaemushim.so` con verifica degli export `ab_call`/`ab_status`/`ab_last_len`, poi i test unitari JVM e un APK di debug.
+- I fallimenti di compilazione vengono ripubblicati come annotazioni di controllo, perché i log delle job in un repository pubblico richiedono diritti di amministratore per essere letti.

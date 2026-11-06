@@ -30,3 +30,15 @@
 - Menu à trois points corrigé dans un système lancé : captures, enregistrement d’écran, VNC, SMS, mode avion, installation d’APK, etc.
 - Le bouton de menu peut être déplacé dans un système lancé.
 - Option pour masquer le voyant LED : dans les valeurs par défaut des nouveaux systèmes et par système.
+
+### Services de l'hôte
+- Toutes les sockets visibles depuis l'invité sont désormais déclarées à un seul endroit (`EndpointRegistry`) et démarrées dans l'ordre de déclaration : la liste des services et leur état en direct ont une source unique. Redémarrer une instance n'hérite plus des déclarations du démarrage précédent.
+- Nouvelle socket de contrôle `aemu_bridge` (bproto2) à côté des points d'accès existants : propriétés, alimentation, presse-papiers et tueur de mémoire basse, chacune avec son propre octet d'opération. Les anciens protocoles (`rild`, `vold`, `dnsproxyd`, `lmkd`) restent intacts.
+- Les services de l'hôte sont accordés par instance depuis un ensemble fermé de capacités (`hostCaps` dans les réglages de l'image) ; un service non accordé répond `EPERM`, et le chemin de distribution n'utilise aucune réflexion.
+- Le mode récupération ne laisse plus une socket d'entrée liée après sa sortie.
+- Disposition de `ab_hello_rep` corrigée : l'enregistrement fait 76 octets sur le fil (2 octets de remplissage avant `pid`), et non 74. Une assertion statique C11 fait maintenant échouer la compilation s'il change encore.
+- `lmkd` peut enfin être accordé : il vit hors de la table des services de l'hôte mais dans l'ensemble des capacités, et une autorisation qui ne correspondait à rien disparaissait silencieusement.
+
+### Compilation
+- GitHub Actions compile à chaque push : le test hôte du pont (gcc, `SOCK_SEQPACKET`), l'autotest de disposition d'octets de l'hôte factice (Python), une compilation armv7 de `libaemushim.so` avec vérification des exports `ab_call`/`ab_status`/`ab_last_len`, puis les tests unitaires JVM et un APK de débogage.
+- Les échecs de compilation sont republiés en annotations de vérification, car les journaux de tâche d'un dépôt public exigent des droits d'administrateur pour être lus.

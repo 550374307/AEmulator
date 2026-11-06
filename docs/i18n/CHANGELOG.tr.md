@@ -30,3 +30,15 @@
 - Çalışan sistemdeki üç nokta menüsü düzeltildi: ekran görüntüsü, ekran kaydı, VNC, SMS, uçak modu, APK yükleme ve dahası.
 - Menü düğmesi çalışan sistemde taşınabilir.
 - LED göstergesini gizleme seçeneği: yeni sistem varsayılanlarında ve her sistemde.
+
+### Ana makine hizmetleri
+- Konuğun gördüğü her soket artık tek bir yerde (`EndpointRegistry`) bildiriliyor ve bildirim sırasıyla başlatılıyor; böylece hizmet listesi ile canlı durumu tek bir kaynağa sahip. Bir örneği yeniden başlatmak önceki açılışın bildirimlerini devralmıyor.
+- Eski uç noktaların yanında yeni denetim soketi `aemu_bridge` (bproto2): özellikler, güç, pano ve düşük bellek öldürücüsü, her biri kendi op baytını taşıyor. Eski protokoller (`rild`, `vold`, `dnsproxyd`, `lmkd`) olduğu gibi kalıyor.
+- Ana makine hizmetleri örnek başına kapalı bir yetenek kümesinden (`imaj ayarlarındaki hostCaps`) veriliyor; verilmeyen hizmet `EPERM` döndürüyor ve dağıtım yolunda hiçbir yansıma kullanılmıyor.
+- Kurtarma kipinden çıkıldığında artık bağlı bir input soketi geride kalmıyor.
+- `ab_hello_rep` yerleşimi düzeltildi: kayıt tel üzerinde 76 bayt (`pid` öncesinde 2 bayt dolgu), 74 değil. Artık yeniden değişirse C11 statik doğrulaması derlemeyi düşürüyor.
+- `lmkd` artık gerçekten verilebiliyor: ana makine hizmet tablosunun dışında ama yetenek kümesinin içinde; önceden hiçbir şeyle eşleşmeyen bir yetki sessizce kayboluyordu.
+
+### Derleme
+- GitHub Actions her push'ta derliyor: köprü ana makine testi (gcc, `SOCK_SEQPACKET`), sahte ana makinenin bayt yerleşimi öz testi (Python), armv7 için `libaemushim.so` derlemesi ve `ab_call`/`ab_status`/`ab_last_len` dışa aktarım denetimi, ardından JVM birim testleri ve hata ayıklama APK'sı.
+- Derleme hataları denetim ek açıklamaları olarak yeniden yayımlanıyor, çünkü herkese açık bir depoda iş günlüklerini okumak yönetici hakları gerektiriyor.

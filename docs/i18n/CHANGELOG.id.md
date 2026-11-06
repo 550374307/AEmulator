@@ -30,3 +30,15 @@
 - Menu tiga titik di sistem yang berjalan diperbaiki: tangkapan layar, rekam layar, VNC, SMS, mode pesawat, pasang APK, dan lainnya.
 - Tombol menu dapat dipindahkan di sistem yang berjalan.
 - Opsi menyembunyikan indikator LED: di bawaan sistem baru dan per sistem.
+
+### Layanan host
+- Setiap soket yang terlihat oleh tamu kini dideklarasikan di satu tempat (`EndpointRegistry`) dan dimulai sesuai urutan deklarasi, sehingga daftar layanan dan keadaan langsungnya punya satu sumber. Memulai ulang sebuah instans tidak lagi mewarisi deklarasi boot sebelumnya.
+- Soket kendali baru `aemu_bridge` (bproto2) di samping endpoint lama: properti, daya, papan klip, dan pembunuh memori rendah, masing-masing membawa bait op sendiri. Protokol lama (`rild`, `vold`, `dnsproxyd`, `lmkd`) tidak disentuh.
+- Layanan host diberikan per instans dari himpunan kemampuan tertutup (`hostCaps` di pengaturan image); layanan yang tidak diberikan menjawab `EPERM`, dan jalur pengiriman tidak memakai refleksi.
+- Mode pemulihan tidak lagi meninggalkan soket input yang terikat setelah keluar.
+- Tata letak `ab_hello_rep` diperbaiki: rekaman berukuran 76 bait di kabel (2 bait padding sebelum `pid`), bukan 74. Asersi statis C11 kini menggagalkan build bila berubah lagi.
+- `lmkd` kini benar-benar bisa diberikan: ia berada di luar tabel layanan host tetapi di dalam himpunan kemampuan, dan pemberian yang tidak cocok dengan apa pun dulu hilang diam-diam.
+
+### Build
+- GitHub Actions membangun pada setiap push: uji host jembatan (gcc, `SOCK_SEQPACKET`), uji mandiri tata letak bait host tiruan (Python), kompilasi `libaemushim.so` untuk armv7 dengan pemeriksaan ekspor `ab_call`/`ab_status`/`ab_last_len`, lalu uji unit JVM dan APK debug.
+- Kegagalan build diterbitkan ulang sebagai anotasi pemeriksaan, karena log pekerjaan di repositori publik butuh hak admin untuk dibaca.

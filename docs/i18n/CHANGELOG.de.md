@@ -30,3 +30,15 @@
 - Drei-Punkte-Menü im laufenden System repariert: Screenshots, Bildschirmaufnahme, VNC, SMS, Flugmodus, APK-Installation und mehr.
 - Die Menütaste lässt sich im laufenden System verschieben.
 - Option zum Ausblenden der LED-Anzeige: in den Standards für neue Systeme und pro System.
+
+### Host-Dienste
+- Jeder für den Gast sichtbare Socket wird jetzt an einer Stelle deklariert (`EndpointRegistry`) und in Deklarationsreihenfolge gestartet; Dienstliste und Live-Zustand haben damit eine einzige Quelle. Ein Neustart einer Instanz erbt nicht mehr die Deklarationen des vorigen Starts.
+- Neuer Steuer-Socket `aemu_bridge` (bproto2) neben den bestehenden Endpunkten: Eigenschaften, Energie, Zwischenablage und Low-Memory-Killer, jeweils mit eigenem op-Byte. Die alten Protokolle (`rild`, `vold`, `dnsproxyd`, `lmkd`) bleiben unangetastet.
+- Host-Dienste werden pro Instanz aus einer geschlossenen Fähigkeitsmenge (`hostCaps` in den Image-Einstellungen) gewährt; ein nicht gewährter Dienst antwortet `EPERM`, und auf dem Verteilpfad wird keine Reflexion benutzt.
+- Der Wiederherstellungsmodus lässt nach dem Beenden keinen gebundenen Input-Socket mehr zurück.
+- Layout von `ab_hello_rep` korrigiert: Der Datensatz ist auf der Leitung 76 Byte groß (2 Byte Padding vor `pid`), nicht 74. Eine statische C11-Zusicherung lässt den Build jetzt fehlschlagen, falls er sich wieder ändert.
+- `lmkd` lässt sich nun tatsächlich gewähren: Es liegt außerhalb der Host-Dienst-Tabelle, aber innerhalb der Fähigkeitsmenge, und eine Gewährung ohne Treffer verschwand früher stillschweigend.
+
+### Build
+- GitHub Actions baut bei jedem Push: den Bridge-Hosttest (gcc, `SOCK_SEQPACKET`), den Byte-Layout-Selbsttest des Mock-Hosts (Python), eine armv7-Kompilierung von `libaemushim.so` mit Exportprüfung für `ab_call`/`ab_status`/`ab_last_len`, dann die JVM-Unit-Tests und ein Debug-APK.
+- Build-Fehler werden als Check-Annotationen erneut veröffentlicht, weil Job-Logs in einem öffentlichen Repository Adminrechte zum Lesen brauchen.

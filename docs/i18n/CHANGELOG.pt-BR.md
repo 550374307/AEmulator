@@ -30,3 +30,15 @@
 - Menu de três pontos corrigido no sistema em execução: capturas de tela, gravação de tela, VNC, SMS, modo avião, instalação de APK e mais.
 - O botão de menu pode ser movido no sistema em execução.
 - Opção para ocultar o indicador LED: nos padrões de novos sistemas e em cada sistema.
+
+### Serviços do host
+- Todo socket visível ao convidado agora é declarado em um só lugar (`EndpointRegistry`) e iniciado na ordem de declaração, então a lista de serviços e seu estado ao vivo têm uma única fonte. Reiniciar uma instância não herda mais as declarações da inicialização anterior.
+- Novo socket de controle `aemu_bridge` (bproto2) ao lado dos endpoints existentes: propriedades, energia, área de transferência e o matador de memória baixa, cada um com seu próprio byte de operação. Os protocolos antigos (`rild`, `vold`, `dnsproxyd`, `lmkd`) ficam intocados.
+- Os serviços do host são concedidos por instância a partir de um conjunto fechado de capacidades (`hostCaps` nas configurações da imagem); um serviço não concedido responde `EPERM`, e o caminho de despacho não usa reflexão.
+- O modo de recuperação não deixa mais um socket de entrada vinculado depois de sair.
+- Corrigido o layout de `ab_hello_rep`: o registro tem 76 bytes no fio (2 bytes de preenchimento antes de `pid`), não 74. Uma asserção estática de C11 agora quebra a compilação se ele mudar de novo.
+- O `lmkd` agora pode de fato ser concedido: ele vive fora da tabela de serviços do host, mas dentro do conjunto de capacidades, e uma concessão que não casava com nada desaparecia em silêncio.
+
+### Compilação
+- O GitHub Actions compila a cada push: o teste de host da ponte (gcc, `SOCK_SEQPACKET`), o autoteste de layout de bytes do host simulado (Python), uma compilação armv7 de `libaemushim.so` com verificação de exportação de `ab_call`/`ab_status`/`ab_last_len`, depois os testes unitários de JVM e um APK de depuração.
+- As falhas de compilação são republicadas como anotações de verificação, porque os logs de job em um repositório público exigem direitos de administrador para serem lidos.
