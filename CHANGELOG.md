@@ -30,3 +30,15 @@
 - Three-dot menu in a running system fixed: screenshots, screen recording, VNC, SMS, airplane mode, APK install and more.
 - The menu button can be moved in a running system.
 - Option to hide the LED indicator: in defaults for new systems and per system.
+
+### Host services
+- Every guest-visible socket is now declared in one place (`EndpointRegistry`) and started in declaration order, so the service list and its live state have a single source of truth. Restarting an instance no longer inherits the previous boot's declarations.
+- New control socket `aemu_bridge` (bproto2) alongside the legacy endpoints: properties, power, clipboard and the low-memory killer, each carrying its own op byte. The legacy protocols (`rild`, `vold`, `dnsproxyd`, `lmkd`) are untouched.
+- Host services are granted per instance from a closed capability set (`hostCaps` in the image settings); a service an instance was not granted answers `EPERM`, and the dispatch path uses no reflection.
+- Recovery mode no longer leaves a bound input socket behind after it exits.
+- Fixed the `ab_hello_rep` layout: the record is 76 bytes on the wire (2 bytes of padding before `pid`), not 74. A C11 static assertion now fails the build if it ever changes again.
+- `lmkd` can actually be granted now: it lives outside the host-service table but inside the capability set, and a grant that matched nothing used to disappear silently.
+
+### Build
+- GitHub Actions builds every push: the bridge host test (gcc, `SOCK_SEQPACKET`), the mock host byte-layout self-test (Python), an armv7 `libaemushim.so` compile with an export check for `ab_call`/`ab_status`/`ab_last_len`, then the JVM unit tests and a debug APK.
+- Build failures are republished as check annotations, because job logs on a public repository need admin rights to read.

@@ -55,6 +55,10 @@ Lista sprawdzonych firmware — ze statusami, uwagami i linkami do pobrania — 
 
 Na Androidzie 2.3–4.4 każdy proces gościa działa pod zmodyfikowanym QEMU w trybie użytkownika; na 5.0–17 programy arm64 z firmware działają natywnie, a ich wywołania systemowe przechwytuje osobne jądro silnika dla każdej wersji Androida. Demon binder zastępuje sterownik jądra, mostek GL przekazuje wywołania OpenGL ES do GPU, a małe biblioteki gościa (HAL audio, nakładka audio policy, shim LD_PRELOAD) dopasowują kod producentów do emulatora. Importer czyta firmware, znajduje skrypty init w obrazie boot i tworzy plan startu usług.
 
+Każde gniazdo widoczne dla systemu gościa jest zadeklarowane w jednym miejscu (`EndpointRegistry`) i uruchamiane w kolejności deklaracji — dzięki temu „co ten firmware właściwie udostępnia” i „co teraz działa” mają jedną odpowiedź. Same protokoły gniazd pozostają nietknięte: `rild`, `vold`, `dnsproxyd` i `lmkd` nadal mówią dokładnie tym, czego oczekują ich własne binarki z firmware. Obok działa nasze własne gniazdo `aemu_bridge` z małym wersjonowanym protokołem (bproto2) i zamkniętym zestawem możliwości hosta: właściwości, zasilanie, schowek i low-memory killer. Usługa nieprzyznana instancji odpowiada `EPERM`, a na tej ścieżce nie ma żadnej refleksji — gość pyta o nazwę, nie o klasę.
+
+- 📄 Format protokołu i tabela punktów końcowych: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Budowanie ze źródeł
 
 Potrzebne są JDK 17, Android SDK 36 i NDK r28. Biblioteki gościa buduje się skryptami `native/*/build.sh`.

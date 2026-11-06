@@ -55,6 +55,10 @@ Test edilen yazılımların listesi — durumlar, notlar ve indirme bağlantıla
 
 Android 2.3–4.4’te her misafir süreç değiştirilmiş kullanıcı kipi QEMU altında çalışır; 5.0–17’de yazılımın arm64 programları doğrudan çalışır ve her Android sürümü için ayrı bir motor çekirdeği sistem çağrılarını yakalar. Bir binder arka plan programı çekirdek sürücüsünün yerini alır, GL köprüsü OpenGL ES çağrılarını GPU’ya iletir, küçük misafir kütüphaneleri (ses HAL’i, audio policy sarmalayıcısı, LD_PRELOAD katmanı) üretici kodunu emülatöre uyarlar. İçe aktarıcı yazılımı okur, boot imajındaki init betiklerini bulur ve servislerin başlama planını kurar.
 
+Misafir sistemin görebildiği her soket tek bir yerde bildirilir (`EndpointRegistry`) ve bildirim sırasına göre başlatılır; böylece «bu yazılım gerçekte ne sunuyor» ve «şu anda ne çalışıyor» sorularının tek bir yanıtı olur. Soketlerin protokolleri değişmez — `rild`, `vold`, `dnsproxyd` ve `lmkd` hâlâ yazılımın kendi ikili dosyalarının beklediği şeyi konuşur. Yanlarında kendi soketimiz `aemu_bridge` çalışır: küçük ve sürümienenmiş bir protokol (bproto2) ve kapalı bir host yetenekleri kümesi — özellikler, güç, pano ve low-memory killer. Bir örneğe verilmemiş servis `EPERM` döner ve bu yolda hiç yansıma yoktur; misafir bir sınıf değil, bir ad ister.
+
+- 📄 Tel formatı ve uç nokta tablosu: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Kaynaktan derleme
 
 JDK 17, Android SDK 36 ve NDK r28 gerekir. Misafir kütüphaneleri `native/*/build.sh` betikleriyle derlenir.

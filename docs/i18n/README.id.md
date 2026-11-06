@@ -55,6 +55,10 @@ Daftar firmware yang sudah diperiksa — lengkap dengan status, catatan, dan tau
 
 Di Android 2.3–4.4 setiap proses tamu berjalan di QEMU mode pengguna yang dimodifikasi; di 5.0–17 program arm64 milik firmware berjalan langsung, dan kernel mesin tersendiri untuk tiap versi Android menangkap panggilan sistemnya. Daemon binder menggantikan driver kernel, jembatan GL meneruskan panggilan OpenGL ES ke GPU, dan pustaka tamu kecil (HAL audio, pembungkus audio policy, shim LD_PRELOAD) menyesuaikan kode pabrikan dengan emulator. Importir membaca firmware, menemukan skrip init di image boot, dan menyusun rencana mulai layanan.
 
+Setiap socket yang bisa dilihat sistem tamu dideklarasikan di satu tempat (`EndpointRegistry`) dan dijalankan sesuai urutan deklarasi, jadi «apa yang sebenarnya disediakan firmware ini» dan «apa yang sedang hidup» punya satu jawaban. Protokol socket-nya sendiri tidak diubah — `rild`, `vold`, `dnsproxyd`, dan `lmkd` tetap berbicara persis seperti yang diharapkan biner firmware. Di sampingnya berjalan satu socket milik kami, `aemu_bridge`, dengan protokol kecil berversi (bproto2) dan himpunan tertutup kemampuan host: properti, daya, papan klip, dan low-memory killer. Layanan yang tidak diberikan ke suatu instance menjawab `EPERM`, dan tidak ada refleksi di jalur itu — tamu meminta nama, bukan kelas.
+
+- 📄 Format wire dan tabel endpoint: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Membangun dari sumber
 
 Butuh JDK 17, Android SDK 36, dan NDK r28. Pustaka tamu dibangun dengan `native/*/build.sh`.

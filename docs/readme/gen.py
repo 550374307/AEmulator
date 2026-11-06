@@ -59,6 +59,12 @@ def render(code):
     L.append("")
     L.append(f"## ⚙️ {t['how_title']}\n")
     L.append(t["how_text"] + "\n")
+    # Second paragraph: the endpoint registry and bproto2. Optional so a language
+    # that has not been translated yet still renders one clean paragraph.
+    if t.get("how_bridge"):
+        L.append(t["how_bridge"] + "\n")
+        if t.get("how_bridge_link"):
+            L.append(f"- 📄 {t['how_bridge_link']}: [docs/bridge.md]({up}docs/bridge.md)\n")
     L.append(f"## 🛠️ {t['build_title']}\n")
     L.append(t["build_text"] + "\n")
     L.append("```bash\ngit clone https://github.com/uxazu/aemulator.git\ncd aemulator\n./gradlew assembleRelease\n```\n")

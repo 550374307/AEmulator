@@ -55,6 +55,10 @@ Danh sách firmware đã kiểm tra — kèm trạng thái, ghi chú và liên k
 
 Trên Android 2.3–4.4 mỗi tiến trình khách chạy dưới QEMU chế độ người dùng đã chỉnh sửa; trên 5.0–17 các chương trình arm64 của firmware chạy trực tiếp, và một nhân động cơ riêng cho từng phiên bản Android bắt các lời gọi hệ thống của chúng. Một daemon binder thay cho driver nhân, cầu GL chuyển lệnh OpenGL ES tới GPU và các thư viện khách nhỏ (HAL âm thanh, lớp bọc audio policy, shim LD_PRELOAD) điều chỉnh mã của hãng cho hợp với trình giả lập. Trình nhập đọc firmware, tìm script init trong image boot và lập kế hoạch khởi động dịch vụ.
 
+Mọi socket mà hệ thống khách nhìn thấy đều được khai báo ở một chỗ (`EndpointRegistry`) và khởi động theo thứ tự khai báo, nên «firmware này thực sự mở ra cái gì» và «cái gì đang chạy» chỉ có một câu trả lời. Bản thân giao thức của các socket không bị đụng tới — `rild`, `vold`, `dnsproxyd` và `lmkd` vẫn nói đúng thứ mà các binary của firmware chờ đợi. Bên cạnh đó là một socket của chúng tôi, `aemu_bridge`, với giao thức nhỏ có phiên bản (bproto2) và một tập đóng các khả năng của máy chủ: thuộc tính, nguồn, clipboard và low-memory killer. Dịch vụ không được cấp cho một phiên bản sẽ trả `EPERM`, và trên đường đó không có reflection — khách hỏi tên, không hỏi lớp.
+
+- 📄 Định dạng đường truyền và bảng endpoint: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Biên dịch từ mã nguồn
 
 Cần JDK 17, Android SDK 36 và NDK r28. Thư viện khách được dựng bằng `native/*/build.sh`.

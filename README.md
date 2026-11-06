@@ -55,7 +55,9 @@ The list of firmware that has been checked — with statuses, notes and download
 
 On Android 2.3–4.4 each guest process runs under a patched user-mode QEMU; on 5.0–17 the firmware’s own arm64 programs run natively, with one engine kernel per Android version catching their system calls. A binder daemon replaces the kernel driver, a GL bridge forwards OpenGL ES calls to the phone’s GPU, and small guest libraries (audio HAL, audio policy wrapper, LD_PRELOAD shim) adapt vendor code to the emulator. The importer reads the firmware, finds the init scripts in its boot image and builds a start plan for system services.
 
-Every socket the guest can see is declared in one place (`EndpointRegistry`) and started in declaration order, so “what does this firmware actually expose, and what is up right now” has a single answer. The socket protocols themselves are untouched — `rild`, `vold`, `dnsproxyd` and `lmkd` still speak whatever the firmware's own binaries expect. Alongside them runs one socket of our own, `aemu_bridge`, with a small versioned protocol (bproto2) and a closed set of host capabilities a guest may use: properties, power, clipboard and the low-memory killer. A service an instance was not granted answers `EPERM`, and there is no reflection anywhere on that path — the guest asks for a name, not for a class.
+Every socket the guest can see is declared in one place (`EndpointRegistry`) and started in declaration order, so “what does this firmware actually expose, and what is up right now” has a single answer. The socket protocols themselves are untouched — `rild`, `vold`, `dnsproxyd` and `lmkd` still speak whatever the firmware’s own binaries expect. Alongside them runs one socket of our own, `aemu_bridge`, with a small versioned protocol (bproto2) and a closed set of host capabilities a guest may use: properties, power, clipboard and the low-memory killer. A service an instance was not granted answers `EPERM`, and there is no reflection anywhere on that path — the guest asks for a name, not for a class.
+
+- 📄 Wire format and endpoint table: [docs/bridge.md](docs/bridge.md)
 
 ## 🛠️ Build from source
 

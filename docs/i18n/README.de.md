@@ -55,6 +55,10 @@ Die Liste geprüfter Firmwares — mit Status, Hinweisen und Download-Links — 
 
 Unter Android 2.3–4.4 läuft jeder Gastprozess unter einem angepassten User-Mode-QEMU; unter 5.0–17 laufen die arm64-Programme der Firmware nativ, und ein eigener Engine-Kernel pro Android-Version fängt ihre Systemaufrufe ab. Ein Binder-Daemon ersetzt den Kernel-Treiber, eine GL-Brücke leitet OpenGL-ES-Aufrufe an die GPU weiter, und kleine Gast-Bibliotheken (Audio-HAL, Audio-Policy-Wrapper, LD_PRELOAD-Shim) passen Herstellercode an den Emulator an. Der Importer liest die Firmware, findet die Init-Skripte im Boot-Image und erstellt einen Startplan für die Systemdienste.
 
+Jeder Socket, den das Gastsystem sieht, wird an einer Stelle deklariert (`EndpointRegistry`) und in Deklarationsreihenfolge gestartet — auf die Fragen „was stellt diese Firmware überhaupt bereit“ und „was läuft gerade“ gibt es damit genau eine Antwort. Die Protokolle der Sockets selbst bleiben unangetastet: `rild`, `vold`, `dnsproxyd` und `lmkd` sprechen weiterhin genau das, was die Binaries der Firmware erwarten. Daneben läuft ein eigener Socket, `aemu_bridge`, mit einem kleinen versionierten Protokoll (bproto2) und einem geschlossenen Satz von Host-Fähigkeiten: Eigenschaften, Energie, Zwischenablage und der Low-Memory-Killer. Ein Dienst, der einer Instanz nicht zugeteilt wurde, antwortet mit `EPERM`, und auf diesem Pfad gibt es keine Reflexion — der Gast fragt nach einem Namen, nicht nach einer Klasse.
+
+- 📄 Wire-Format und Endpunkt-Tabelle: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Aus dem Quellcode bauen
 
 Benötigt werden JDK 17, Android SDK 36 und NDK r28. Die Gast-Bibliotheken werden mit `native/*/build.sh` gebaut.

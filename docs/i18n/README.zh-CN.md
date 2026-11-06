@@ -55,6 +55,10 @@ AEmulator 直接从固件文件启动真实的 Android 2.3–17 系统：Recover
 
 在 Android 2.3–4.4 上，每个客户机进程运行在改进的用户态 QEMU 中；在 5.0–17 上，固件自带的 arm64 程序原生运行，由每个 Android 版本各自的引擎内核拦截其系统调用。binder 守护进程取代内核驱动，GL 桥把 OpenGL ES 调用转发给 GPU，小型客户机库（音频 HAL、audio policy 包装、LD_PRELOAD 垫片）让厂商代码适配模拟器。导入器读取固件，在 boot 镜像中找到 init 脚本，并生成系统服务的启动计划。
 
+客户机可见的每个 socket 都在一处声明（`EndpointRegistry`），并按声明顺序启动，所以「这套固件到底暴露了什么」「现在到底哪些在跑」只有一个答案。socket 本身的协议一律不动——`rild`、`vold`、`dnsproxyd`、`lmkd` 仍然说固件自己的二进制所期望的那套。它们旁边跑着我们自己的一个 socket `aemu_bridge`，带一套带版本号的小协议（bproto2）和一个封闭的宿主能力集合：属性、电源、剪贴板、低内存杀手。某个实例没被授予的服务一律回 `EPERM`，而且这条路径上没有任何反射——客户机要的是一个名字，不是一个类。
+
+- 📄 线格式与端点表: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ 从源码构建
 
 需要 JDK 17、Android SDK 36 和 NDK r28。客户机库通过 `native/*/build.sh` 构建。

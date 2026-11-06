@@ -55,6 +55,10 @@ L’elenco dei firmware verificati — con stato, note e link per il download �
 
 Su Android 2.3–4.4 ogni processo ospite gira sotto un QEMU user-mode modificato; su 5.0–17 i programmi arm64 del firmware girano in modo nativo e un kernel del motore dedicato a ogni versione di Android intercetta le loro chiamate di sistema. Un demone binder sostituisce il driver del kernel, un ponte GL inoltra le chiamate OpenGL ES alla GPU e piccole librerie ospiti (HAL audio, wrapper audio policy, shim LD_PRELOAD) adattano il codice dei produttori all’emulatore. L’importatore legge il firmware, trova gli script init nell’immagine boot e crea il piano di avvio dei servizi.
 
+Ogni socket che il sistema ospite vede è dichiarato in un solo posto (`EndpointRegistry`) e avviato nell’ordine di dichiarazione: «che cosa espone davvero questo firmware» e «che cosa è attivo adesso» hanno quindi una risposta sola. I protocolli degli socket non vengono toccati — `rild`, `vold`, `dnsproxyd` e `lmkd` parlano ancora esattamente ciò che i binari del firmware si aspettano. Accanto gira un socket nostro, `aemu_bridge`, con un piccolo protocollo versionato (bproto2) e un insieme chiuso di capacità dell’host: proprietà, alimentazione, appunti e il low-memory killer. Un servizio non concesso all’istanza risponde `EPERM`, e su quel percorso non c’è alcuna riflessione: l’ospite chiede un nome, non una classe.
+
+- 📄 Formato del protocollo e tabella degli endpoint: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Compilare dai sorgenti
 
 Servono JDK 17, Android SDK 36 e NDK r28. Le librerie ospiti si compilano con `native/*/build.sh`.

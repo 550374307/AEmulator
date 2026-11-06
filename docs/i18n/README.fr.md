@@ -55,6 +55,10 @@ La liste des ROM vérifiées — avec états, notes et liens de téléchargement
 
 Sous Android 2.3–4.4, chaque processus invité tourne sous un QEMU en mode utilisateur modifié ; sous 5.0–17, les programmes arm64 de la ROM tournent en natif et un noyau de moteur propre à chaque version d’Android intercepte leurs appels système. Un démon binder remplace le pilote du noyau, un pont GL transmet les appels OpenGL ES au GPU, et de petites bibliothèques invitées (HAL audio, enveloppe audio policy, shim LD_PRELOAD) adaptent le code constructeur à l’émulateur. L’importateur lit la ROM, trouve les scripts init dans l’image boot et construit le plan de démarrage des services.
 
+Chaque socket visible par le système invité est déclaré à un seul endroit (`EndpointRegistry`) et démarré dans l’ordre de déclaration : « que expose réellement ce firmware » et « qu’est-ce qui tourne maintenant » ont donc une réponse unique. Les protocoles des sockets eux-mêmes ne changent pas — `rild`, `vold`, `dnsproxyd` et `lmkd` parlent toujours exactement ce que leurs binaires d’origine attendent. À côté tourne un socket maison, `aemu_bridge`, avec un petit protocole versionné (bproto2) et un ensemble fermé de capacités hôte : propriétés, alimentation, presse-papiers et le low-memory killer. Un service non accordé à une instance répond `EPERM`, et il n’y a aucune réflexion sur ce chemin — l’invité demande un nom, pas une classe.
+
+- 📄 Format du protocole et tableau des points d’entrée: [docs/bridge.md](../../docs/bridge.md)
+
 ## 🛠️ Compiler depuis les sources
 
 Il faut JDK 17, Android SDK 36 et NDK r28. Les bibliothèques invitées se compilent avec `native/*/build.sh`.
