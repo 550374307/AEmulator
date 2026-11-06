@@ -21,3 +21,41 @@ release-apks/
 # артефакты host-теста моста (native/guestshim/build.sh hosttest)
 native/guestshim/ab_host_test
 native/guestshim/ab_host_test.exe
+
+# ── Разбор стороннего APK (VMOS Pro 3.10) ────────────────────────────────────
+# Это рабочий хлам анализа, а не исходники эмулятора. Каталог _slim — это
+# 45 098 файлов на 1.4 ГБ распакованных smali; без этих строк любой
+# `git status` обходит их все, а один неосторожный `git add -A` тащит их
+# в историю навсегда.
+/_slim/
+/_buildtools/
+/libsall/
+/ex_native/
+/ex_native2/
+/ex_assets/
+/nested/
+
+# Вывод декомпилятора jadx лежит прямо в корне: в этом репозитории нет ни
+# одного .java-исходника, всё это — результат разбора чужого APK.
+/*.java
+
+# Списки классов и ссылки, собранные скриптами разбора.
+/all.txt
+/plugclasses.txt
+/classes_*.txt
+/refs_*.txt
+/null
+
+# Манифест разобранного APK (package com.vmos.pro). Настоящий манифест —
+# app/src/main/AndroidManifest.xml, и он отслеживается.
+/AndroidManifest.xml
+
+# Скрипты и отчёты того же разбора.
+/inspect_nested*.py
+/x.py
+/xq.py
+/VMOS_Pro_3.10_*.md
+
+# Проектные записки, которые не являются частью продукта.
+/A1_B1_设计方案_*.md
+/AEmulator_吸收VMOS优点_*.md
