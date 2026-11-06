@@ -237,6 +237,9 @@ h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.15; }
 .fact:hover .fact__icon { transform: rotate(-10deg) scale(1.12); border-radius: 50%; }
 .fact h4 { font-size: 1.1rem; margin-bottom: 6px; }
 .fact p { color: var(--on-surface-var); font-size: .95rem; }
+/* второй абзац про мост: отделяем от первого, код мельче — строка длинная */
+.fact__more { margin-top: 12px; }
+.fact__more code { font-size: .84em; }
 
 /* ---------- Возможности ---------- */
 .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }

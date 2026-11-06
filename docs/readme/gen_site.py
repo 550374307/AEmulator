@@ -26,6 +26,12 @@ def main():
         t["feats"] = [md(x) for x in t["feats"]]
         t["credits_text"] = md(t["credits_text"].format(orig=data.ORIGINAL))
         t["build_text"] = md(t["build_text"])
+        # Второй абзац про мост: markdown обязателен — в тексте есть `code`, а слот на сайте
+        # заполняется через innerHTML (data-t-html), не textContent.
+        # Ссылку на docs/bridge.md здесь не даём намеренно: data.REPO указывает на апстрим
+        # (uxazu/aemulator), где этого файла нет — получилась бы гарантированная 404.
+        if t.get("how_bridge"):
+            t["how_bridge"] = md(t["how_bridge"])
         out[code] = t
     payload = {"langs": [{"code": c, "name": n, "flag": f} for c, n, f in data.LANGS], "rtl": ["ar", "fa"], "t": out}
     os.makedirs(os.path.join(ROOT, "site"), exist_ok=True)

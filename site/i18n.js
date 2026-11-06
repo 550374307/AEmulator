@@ -168,7 +168,9 @@ window.AEMU_I18N = {
    "license_title": "License",
    "license_text": "GPL-3.0. Android, trademarks and firmware belong to their owners.",
    "forum": "Forum",
-   "forum_open": "Open the forum"
+   "forum_open": "Open the forum",
+   "how_bridge": "Every socket the guest can see is declared in one place (<code>EndpointRegistry</code>) and started in declaration order, so “what does this firmware actually expose, and what is up right now” has a single answer. The socket protocols themselves are untouched — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> and <code>lmkd</code> still speak whatever the firmware’s own binaries expect. Alongside them runs one socket of our own, <code>aemu_bridge</code>, with a small versioned protocol (bproto2) and a closed set of host capabilities a guest may use: properties, power, clipboard and the low-memory killer. A service an instance was not granted answers <code>EPERM</code>, and there is no reflection anywhere on that path — the guest asks for a name, not for a class.",
+   "how_bridge_link": "Wire format and endpoint table"
   },
   "ru": {
    "s_fw": "проверенных прошивок",
@@ -241,7 +243,9 @@ window.AEMU_I18N = {
    "license_title": "Лицензия",
    "license_text": "GPL-3.0. Android, товарные знаки и прошивки принадлежат их владельцам.",
    "forum": "Форум",
-   "forum_open": "Открыть форум"
+   "forum_open": "Открыть форум",
+   "how_bridge": "Каждый сокет, который видит гостевая система, объявлен в одном месте (<code>EndpointRegistry</code>) и поднимается в порядке объявления — поэтому на вопросы «что вообще отдаёт эта прошивка» и «что сейчас работает» есть один ответ. Сами протоколы сокетов не тронуты: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> и <code>lmkd</code> по-прежнему говорят на том, что ждут их собственные бинарники из прошивки. Рядом с ними живёт один наш сокет — <code>aemu_bridge</code>, с небольшим версионированным протоколом (bproto2) и закрытым набором возможностей хоста: свойства, питание, буфер обмена и low-memory killer. Служба, которую экземпляру не выдали, отвечает <code>EPERM</code>, и на этом пути нет никакой рефлексии — гость спрашивает имя, а не класс.",
+   "how_bridge_link": "Формат провода и таблица эндпоинтов"
   },
   "uk": {
    "s_fw": "перевірених прошивок",
@@ -314,7 +318,9 @@ window.AEMU_I18N = {
    "license_title": "Ліцензія",
    "license_text": "GPL-3.0. Android, торговельні марки й прошивки належать їхнім власникам.",
    "forum": "Форум",
-   "forum_open": "Відкрити форум"
+   "forum_open": "Відкрити форум",
+   "how_bridge": "Кожен сокет, який бачить гостьова система, оголошено в одному місці (<code>EndpointRegistry</code>) і піднімається в порядку оголошення — тож на питання «що взагалі віддає ця прошивка» і «що зараз працює» є одна відповідь. Самі протоколи сокетів не змінено: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> і <code>lmkd</code> далі говорять тим, що чекають їхні власні бінарники з прошивки. Поруч із ними живе один наш сокет — <code>aemu_bridge</code>, з невеликим версійованим протоколом (bproto2) і закритим набором можливостей хоста: властивості, живлення, буфер обміну й low-memory killer. Служба, яку екземпляру не видали, відповідає <code>EPERM</code>, і на цьому шляху немає жодної рефлексії — гість питає ім’я, а не клас.",
+   "how_bridge_link": "Формат дроту й таблиця ендпоїнтів"
   },
   "de": {
    "s_fw": "getestete Firmwares",
@@ -387,7 +393,9 @@ window.AEMU_I18N = {
    "license_title": "Lizenz",
    "license_text": "GPL-3.0. Android, Marken und Firmware gehören ihren Inhabern.",
    "forum": "Forum",
-   "forum_open": "Forum öffnen"
+   "forum_open": "Forum öffnen",
+   "how_bridge": "Jeder Socket, den das Gastsystem sieht, wird an einer Stelle deklariert (<code>EndpointRegistry</code>) und in Deklarationsreihenfolge gestartet — auf die Fragen „was stellt diese Firmware überhaupt bereit“ und „was läuft gerade“ gibt es damit genau eine Antwort. Die Protokolle der Sockets selbst bleiben unangetastet: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> und <code>lmkd</code> sprechen weiterhin genau das, was die Binaries der Firmware erwarten. Daneben läuft ein eigener Socket, <code>aemu_bridge</code>, mit einem kleinen versionierten Protokoll (bproto2) und einem geschlossenen Satz von Host-Fähigkeiten: Eigenschaften, Energie, Zwischenablage und der Low-Memory-Killer. Ein Dienst, der einer Instanz nicht zugeteilt wurde, antwortet mit <code>EPERM</code>, und auf diesem Pfad gibt es keine Reflexion — der Gast fragt nach einem Namen, nicht nach einer Klasse.",
+   "how_bridge_link": "Wire-Format und Endpunkt-Tabelle"
   },
   "fr": {
    "s_fw": "ROM testées",
@@ -460,7 +468,9 @@ window.AEMU_I18N = {
    "license_title": "Licence",
    "license_text": "GPL-3.0. Android, les marques et les ROM appartiennent à leurs propriétaires.",
    "forum": "Forum",
-   "forum_open": "Ouvrir le forum"
+   "forum_open": "Ouvrir le forum",
+   "how_bridge": "Chaque socket visible par le système invité est déclaré à un seul endroit (<code>EndpointRegistry</code>) et démarré dans l’ordre de déclaration : « que expose réellement ce firmware » et « qu’est-ce qui tourne maintenant » ont donc une réponse unique. Les protocoles des sockets eux-mêmes ne changent pas — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> et <code>lmkd</code> parlent toujours exactement ce que leurs binaires d’origine attendent. À côté tourne un socket maison, <code>aemu_bridge</code>, avec un petit protocole versionné (bproto2) et un ensemble fermé de capacités hôte : propriétés, alimentation, presse-papiers et le low-memory killer. Un service non accordé à une instance répond <code>EPERM</code>, et il n’y a aucune réflexion sur ce chemin — l’invité demande un nom, pas une classe.",
+   "how_bridge_link": "Format du protocole et tableau des points d’entrée"
   },
   "es": {
    "s_fw": "firmwares probados",
@@ -533,7 +543,9 @@ window.AEMU_I18N = {
    "license_title": "Licencia",
    "license_text": "GPL-3.0. Android, las marcas y el firmware pertenecen a sus dueños.",
    "forum": "Foro",
-   "forum_open": "Abrir el foro"
+   "forum_open": "Abrir el foro",
+   "how_bridge": "Cada socket que ve el sistema invitado se declara en un solo sitio (<code>EndpointRegistry</code>) y se arranca en orden de declaración, así que «qué expone realmente este firmware» y «qué está funcionando ahora» tienen una única respuesta. Los protocolos de los sockets no se tocan: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> y <code>lmkd</code> siguen hablando exactamente lo que esperan los binarios del firmware. Junto a ellos corre un socket propio, <code>aemu_bridge</code>, con un protocolo pequeño y versionado (bproto2) y un conjunto cerrado de capacidades del host: propiedades, energía, portapapeles y el low-memory killer. Un servicio que no se concedió a la instancia responde <code>EPERM</code>, y en ese camino no hay reflexión: el invitado pide un nombre, no una clase.",
+   "how_bridge_link": "Formato del protocolo y tabla de extremos"
   },
   "pt-BR": {
    "s_fw": "firmwares testados",
@@ -606,7 +618,9 @@ window.AEMU_I18N = {
    "license_title": "Licença",
    "license_text": "GPL-3.0. Android, marcas e firmwares pertencem aos seus donos.",
    "forum": "Fórum",
-   "forum_open": "Abrir o fórum"
+   "forum_open": "Abrir o fórum",
+   "how_bridge": "Todo socket que o sistema convidado enxerga é declarado num único lugar (<code>EndpointRegistry</code>) e iniciado na ordem de declaração, então «o que este firmware realmente expõe» e «o que está no ar agora» têm uma resposta só. Os protocolos dos sockets não mudam: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> e <code>lmkd</code> continuam falando exatamente o que os binários do firmware esperam. Ao lado deles roda um socket nosso, <code>aemu_bridge</code>, com um protocolo pequeno e versionado (bproto2) e um conjunto fechado de capacidades do host: propriedades, energia, área de transferência e o low-memory killer. Um serviço que a instância não recebeu responde <code>EPERM</code>, e não há reflexão nenhuma nesse caminho — o convidado pede um nome, não uma classe.",
+   "how_bridge_link": "Formato do protocolo e tabela de endpoints"
   },
   "it": {
    "s_fw": "firmware testati",
@@ -679,7 +693,9 @@ window.AEMU_I18N = {
    "license_title": "Licenza",
    "license_text": "GPL-3.0. Android, i marchi e i firmware appartengono ai rispettivi proprietari.",
    "forum": "Forum",
-   "forum_open": "Apri il forum"
+   "forum_open": "Apri il forum",
+   "how_bridge": "Ogni socket che il sistema ospite vede è dichiarato in un solo posto (<code>EndpointRegistry</code>) e avviato nell’ordine di dichiarazione: «che cosa espone davvero questo firmware» e «che cosa è attivo adesso» hanno quindi una risposta sola. I protocolli degli socket non vengono toccati — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> e <code>lmkd</code> parlano ancora esattamente ciò che i binari del firmware si aspettano. Accanto gira un socket nostro, <code>aemu_bridge</code>, con un piccolo protocollo versionato (bproto2) e un insieme chiuso di capacità dell’host: proprietà, alimentazione, appunti e il low-memory killer. Un servizio non concesso all’istanza risponde <code>EPERM</code>, e su quel percorso non c’è alcuna riflessione: l’ospite chiede un nome, non una classe.",
+   "how_bridge_link": "Formato del protocollo e tabella degli endpoint"
   },
   "pl": {
    "s_fw": "przetestowanych firmware",
@@ -752,7 +768,9 @@ window.AEMU_I18N = {
    "license_title": "Licencja",
    "license_text": "GPL-3.0. Android, znaki towarowe i firmware należą do ich właścicieli.",
    "forum": "Forum",
-   "forum_open": "Otwórz forum"
+   "forum_open": "Otwórz forum",
+   "how_bridge": "Każde gniazdo widoczne dla systemu gościa jest zadeklarowane w jednym miejscu (<code>EndpointRegistry</code>) i uruchamiane w kolejności deklaracji — dzięki temu „co ten firmware właściwie udostępnia” i „co teraz działa” mają jedną odpowiedź. Same protokoły gniazd pozostają nietknięte: <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> i <code>lmkd</code> nadal mówią dokładnie tym, czego oczekują ich własne binarki z firmware. Obok działa nasze własne gniazdo <code>aemu_bridge</code> z małym wersjonowanym protokołem (bproto2) i zamkniętym zestawem możliwości hosta: właściwości, zasilanie, schowek i low-memory killer. Usługa nieprzyznana instancji odpowiada <code>EPERM</code>, a na tej ścieżce nie ma żadnej refleksji — gość pyta o nazwę, nie o klasę.",
+   "how_bridge_link": "Format protokołu i tabela punktów końcowych"
   },
   "tr": {
    "s_fw": "test edilen yazılım",
@@ -825,7 +843,9 @@ window.AEMU_I18N = {
    "license_title": "Lisans",
    "license_text": "GPL-3.0. Android, markalar ve yazılımlar sahiplerine aittir.",
    "forum": "Forum",
-   "forum_open": "Forumu aç"
+   "forum_open": "Forumu aç",
+   "how_bridge": "Misafir sistemin görebildiği her soket tek bir yerde bildirilir (<code>EndpointRegistry</code>) ve bildirim sırasına göre başlatılır; böylece «bu yazılım gerçekte ne sunuyor» ve «şu anda ne çalışıyor» sorularının tek bir yanıtı olur. Soketlerin protokolleri değişmez — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> ve <code>lmkd</code> hâlâ yazılımın kendi ikili dosyalarının beklediği şeyi konuşur. Yanlarında kendi soketimiz <code>aemu_bridge</code> çalışır: küçük ve sürümienenmiş bir protokol (bproto2) ve kapalı bir host yetenekleri kümesi — özellikler, güç, pano ve low-memory killer. Bir örneğe verilmemiş servis <code>EPERM</code> döner ve bu yolda hiç yansıma yoktur; misafir bir sınıf değil, bir ad ister.",
+   "how_bridge_link": "Tel formatı ve uç nokta tablosu"
   },
   "ar": {
    "s_fw": "برامج ثابتة مُختبرة",
@@ -898,7 +918,9 @@ window.AEMU_I18N = {
    "license_title": "الترخيص",
    "license_text": "GPL-3.0. أندرويد والعلامات التجارية والبرامج الثابتة ملك لأصحابها.",
    "forum": "المنتدى",
-   "forum_open": "افتح المنتدى"
+   "forum_open": "افتح المنتدى",
+   "how_bridge": "كل مقبس يراه النظام الضيف يُعلن في مكان واحد (<code>EndpointRegistry</code>) ويُشغَّل بترتيب الإعلان، فصار لسؤالَي «ماذا يقدّم هذا البرنامج الثابت فعلاً» و«ما الذي يعمل الآن» جواب واحد. بروتوكولات المقابس نفسها لم تُمسّ: <code>rild</code> و<code>vold</code> و<code>dnsproxyd</code> و<code>lmkd</code> ما زالت تتخاطب بما تتوقعه برامجها الأصلية. وإلى جانبها يعمل مقبس خاص بنا، <code>aemu_bridge</code>، ببروتوكول صغير ذي إصدار (bproto2) ومجموعة مغلقة من قدرات المضيف: الخصائص والطاقة والحافظة وقاتل الذاكرة المنخفضة. أي خدمة لم تُمنح للنسخة تردّ بـ <code>EPERM</code>، ولا وجود لأي انعكاس على هذا المسار — الضيف يسأل عن اسم، لا عن صنف.",
+   "how_bridge_link": "صيغة الإرسال وجدول نقاط النهاية"
   },
   "fa": {
    "s_fw": "فرم‌ویر آزموده",
@@ -971,7 +993,9 @@ window.AEMU_I18N = {
    "license_title": "مجوز",
    "license_text": "GPL-3.0. اندروید، نشان‌های تجاری و فرم‌ویرها متعلق به صاحبانشان‌اند.",
    "forum": "انجمن",
-   "forum_open": "باز کردن انجمن"
+   "forum_open": "باز کردن انجمن",
+   "how_bridge": "هر سوکتی که سیستم مهمان می‌بیند در یک جا اعلام می‌شود (<code>EndpointRegistry</code>) و به ترتیب اعلام راه می‌افتد؛ بنابراین «این فرم‌ویر در واقع چه چیزی ارائه می‌دهد» و «الان چه چیزی بالاست» یک پاسخ دارد. پروتکل خود سوکت‌ها دست‌نخورده است — <code>rild</code>، <code>vold</code>، <code>dnsproxyd</code> و <code>lmkd</code> هنوز همان چیزی را می‌گویند که باینری‌های خود فرم‌ویر انتظار دارند. در کنارشان یک سوکت از خودمان به نام <code>aemu_bridge</code> اجرا می‌شود، با پروتکل کوچک و نسخه‌دار (bproto2) و مجموعه‌ای بسته از توانایی‌های میزبان: ویژگی‌ها، توان، کلیپ‌بورد و کشندهٔ حافظهٔ کم. خدمتی که به یک نمونه داده نشده باشد <code>EPERM</code> پاسخ می‌دهد و در این مسیر هیچ بازتابی نیست — مهمان نام می‌خواهد، نه کلاس.",
+   "how_bridge_link": "قالب انتقال و جدول نقاط پایانی"
   },
   "hi": {
    "s_fw": "परखे गए फ़र्मवेयर",
@@ -1044,7 +1068,9 @@ window.AEMU_I18N = {
    "license_title": "लाइसेंस",
    "license_text": "GPL-3.0। Android, ट्रेडमार्क और फ़र्मवेयर उनके स्वामियों के हैं।",
    "forum": "फ़ोरम",
-   "forum_open": "फ़ोरम खोलें"
+   "forum_open": "फ़ोरम खोलें",
+   "how_bridge": "अतिथि सिस्टम जो भी सॉकेट देख सकता है, वह एक ही जगह घोषित होता है (<code>EndpointRegistry</code>) और घोषणा के क्रम में शुरू होता है, इसलिए «यह फ़र्मवेयर वास्तव में क्या देता है» और «अभी क्या चल रहा है» का एक ही उत्तर है। सॉकेट के प्रोटोकॉल छुए नहीं गए — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> और <code>lmkd</code> अब भी वही बोलते हैं जो फ़र्मवेयर की अपनी बाइनरी चाहती हैं। इनके साथ हमारा एक सॉकेट <code>aemu_bridge</code> चलता है, जिसमें छोटा संस्करण-युक्त प्रोटोकॉल (bproto2) और होस्ट क्षमताओं का बंद समुच्चय है: प्रॉपर्टी, पावर, क्लिपबोर्ड और लो-मेमोरी किलर। जो सेवा किसी इंस्टेंस को नहीं दी गई, वह <code>EPERM</code> लौटाती है, और उस रास्ते पर कोई रिफ़्लेक्शन नहीं है — अतिथि नाम मांगता है, क्लास नहीं।",
+   "how_bridge_link": "वायर फ़ॉर्मेट और एंडपॉइंट तालिका"
   },
   "id": {
    "s_fw": "firmware teruji",
@@ -1117,7 +1143,9 @@ window.AEMU_I18N = {
    "license_title": "Lisensi",
    "license_text": "GPL-3.0. Android, merek dagang, dan firmware milik pemiliknya.",
    "forum": "Forum",
-   "forum_open": "Buka forum"
+   "forum_open": "Buka forum",
+   "how_bridge": "Setiap socket yang bisa dilihat sistem tamu dideklarasikan di satu tempat (<code>EndpointRegistry</code>) dan dijalankan sesuai urutan deklarasi, jadi «apa yang sebenarnya disediakan firmware ini» dan «apa yang sedang hidup» punya satu jawaban. Protokol socket-nya sendiri tidak diubah — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code>, dan <code>lmkd</code> tetap berbicara persis seperti yang diharapkan biner firmware. Di sampingnya berjalan satu socket milik kami, <code>aemu_bridge</code>, dengan protokol kecil berversi (bproto2) dan himpunan tertutup kemampuan host: properti, daya, papan klip, dan low-memory killer. Layanan yang tidak diberikan ke suatu instance menjawab <code>EPERM</code>, dan tidak ada refleksi di jalur itu — tamu meminta nama, bukan kelas.",
+   "how_bridge_link": "Format wire dan tabel endpoint"
   },
   "vi": {
    "s_fw": "firmware đã thử",
@@ -1190,7 +1218,9 @@ window.AEMU_I18N = {
    "license_title": "Giấy phép",
    "license_text": "GPL-3.0. Android, nhãn hiệu và firmware thuộc về chủ sở hữu.",
    "forum": "Diễn đàn",
-   "forum_open": "Mở diễn đàn"
+   "forum_open": "Mở diễn đàn",
+   "how_bridge": "Mọi socket mà hệ thống khách nhìn thấy đều được khai báo ở một chỗ (<code>EndpointRegistry</code>) và khởi động theo thứ tự khai báo, nên «firmware này thực sự mở ra cái gì» và «cái gì đang chạy» chỉ có một câu trả lời. Bản thân giao thức của các socket không bị đụng tới — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code> và <code>lmkd</code> vẫn nói đúng thứ mà các binary của firmware chờ đợi. Bên cạnh đó là một socket của chúng tôi, <code>aemu_bridge</code>, với giao thức nhỏ có phiên bản (bproto2) và một tập đóng các khả năng của máy chủ: thuộc tính, nguồn, clipboard và low-memory killer. Dịch vụ không được cấp cho một phiên bản sẽ trả <code>EPERM</code>, và trên đường đó không có reflection — khách hỏi tên, không hỏi lớp.",
+   "how_bridge_link": "Định dạng đường truyền và bảng endpoint"
   },
   "zh-CN": {
    "s_fw": "已测试固件",
@@ -1263,7 +1293,9 @@ window.AEMU_I18N = {
    "license_title": "许可证",
    "license_text": "GPL-3.0。Android、商标及固件归其所有者所有。",
    "forum": "论坛",
-   "forum_open": "打开论坛"
+   "forum_open": "打开论坛",
+   "how_bridge": "客户机可见的每个 socket 都在一处声明（<code>EndpointRegistry</code>），并按声明顺序启动，所以「这套固件到底暴露了什么」「现在到底哪些在跑」只有一个答案。socket 本身的协议一律不动——<code>rild</code>、<code>vold</code>、<code>dnsproxyd</code>、<code>lmkd</code> 仍然说固件自己的二进制所期望的那套。它们旁边跑着我们自己的一个 socket <code>aemu_bridge</code>，带一套带版本号的小协议（bproto2）和一个封闭的宿主能力集合：属性、电源、剪贴板、低内存杀手。某个实例没被授予的服务一律回 <code>EPERM</code>，而且这条路径上没有任何反射——客户机要的是一个名字，不是一个类。",
+   "how_bridge_link": "线格式与端点表"
   },
   "ja": {
    "s_fw": "検証済みファームウェア",
@@ -1336,7 +1368,9 @@ window.AEMU_I18N = {
    "license_title": "ライセンス",
    "license_text": "GPL-3.0。Android、商標、ファームウェアは各所有者に帰属します。",
    "forum": "フォーラム",
-   "forum_open": "フォーラムを開く"
+   "forum_open": "フォーラムを開く",
+   "how_bridge": "ゲストが見られるソケットはすべて一か所（<code>EndpointRegistry</code>）で宣言され、宣言順に起動します。つまり「このファームウェアは実際に何を公開しているのか」「いま何が動いているのか」に答えは一つだけです。ソケット自体のプロトコルは変えていません — <code>rild</code>、<code>vold</code>、<code>dnsproxyd</code>、<code>lmkd</code> は今もファームウェア自身のバイナリが期待するものを話します。その隣で自前のソケット <code>aemu_bridge</code> が動きます。小さなバージョン付きプロトコル（bproto2）と、ホスト機能の閉じた集合（プロパティ、電源、クリップボード、低メモリキラー）を持ちます。インスタンスに与えられていないサービスは <code>EPERM</code> を返し、この経路にリフレクションは一切ありません — ゲストが求めるのは名前であって、クラスではありません。",
+   "how_bridge_link": "ワイヤフォーマットとエンドポイント一覧"
   },
   "ko": {
    "s_fw": "테스트된 펌웨어",
@@ -1409,7 +1443,9 @@ window.AEMU_I18N = {
    "license_title": "라이선스",
    "license_text": "GPL-3.0. Android, 상표, 펌웨어는 각 소유자에게 있습니다.",
    "forum": "포럼",
-   "forum_open": "포럼 열기"
+   "forum_open": "포럼 열기",
+   "how_bridge": "게스트가 볼 수 있는 모든 소켓은 한곳(<code>EndpointRegistry</code>)에서 선언되고 선언 순서대로 시작됩니다. 그래서 «이 펀웨어가 실제로 무엇을 내놓는가»와 «지금 무엇이 떠 있는가»에 대한 답은 하나뿐입니다. 소켓 자체의 프로토콜은 건드리지 않습니다 — <code>rild</code>, <code>vold</code>, <code>dnsproxyd</code>, <code>lmkd</code>는 여전히 펀웨어 자체 바이너리가 기대하는 그대로 말합니다. 그 옆에서 우리 소켓 <code>aemu_bridge</code>가 돕니다. 작은 버전 관리 프로토콜(bproto2)과 닫힌 호스트 기능 집합(프로퍼티, 전원, 클립보드, 저메모리 킬러)을 가집니다. 인스턴스에 주어지지 않은 서비스는 <code>EPERM</code>으로 답하고, 그 경로에는 리플렉션이 전혀 없습니다 — 게스트는 클래스가 아니라 이름을 묻습니다.",
+   "how_bridge_link": "와이어 포맷과 엔드포인트 표"
   }
  }
 };

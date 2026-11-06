@@ -99,7 +99,12 @@
         <p class="about-lead" data-t="about"></p>
         <div class="fact glass tilt">
           <span class="material-symbols-rounded fact__icon">settings_suggest</span>
-          <div><h4 data-t="how_title"></h4><p data-t="how_text"></p></div>
+          <div>
+            <h4 data-t="how_title"></h4>
+            <p data-t="how_text"></p>
+            <!-- второй абзац содержит `code`, поэтому innerHTML, а не textContent -->
+            <p class="fact__more" data-t-html="how_bridge"></p>
+          </div>
         </div>
       </div>
     </div>
