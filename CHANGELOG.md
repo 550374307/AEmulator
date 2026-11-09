@@ -38,6 +38,7 @@
 - Recovery mode no longer leaves a bound input socket behind after it exits.
 - Fixed the `ab_hello_rep` layout: the record is 76 bytes on the wire (2 bytes of padding before `pid`), not 74. A C11 static assertion now fails the build if it ever changes again.
 - `lmkd` can actually be granted now: it lives outside the host-service table but inside the capability set, and a grant that matched nothing used to disappear silently.
+- The capability set is now visible: the settings sheet has a Host services section with a switch per capability, shown only for firmware whose kernel tag exports the bridge (Android 9+), because on older images the switches could not do anything.
 
 ### Build
 - GitHub Actions builds every push: the bridge host test (gcc, `SOCK_SEQPACKET`), the mock host byte-layout self-test (Python), an armv7 `libaemushim.so` compile with an export check for `ab_call`/`ab_status`/`ab_last_len`, then the JVM unit tests and a debug APK.

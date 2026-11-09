@@ -38,6 +38,7 @@
 - Chế độ phục hồi không còn để lại socket nhập đang gắn sau khi thoát.
 - Đã sửa bố cục `ab_hello_rep`: bản ghi là 76 byte trên đường truyền (2 byte đệm trước `pid`), không phải 74. Khẳng định tĩnh C11 giờ làm hỏng bản dựng nếu nó lại thay đổi.
 - `lmkd` nay thực sự cấp được: nó nằm ngoài bảng dịch vụ máy chủ nhưng trong tập năng lực, và trước đây một cấp phép không khớp gì thì biến mất lặng lẽ.
+- Tập quyền năng giờ đã hiển thị: phần cài đặt có mục Dịch vụ máy chủ với một công tắc cho mỗi quyền năng, chỉ hiện với firmware mà nhân của nó xuất ra cầu nối (Android 9 trở lên), vì trên ảnh cũ hơn các công tắc sẽ không làm được gì.
 
 ### Bản dựng
 - GitHub Actions dựng ở mỗi lần push: kiểm thử máy chủ của cầu (gcc, `SOCK_SEQPACKET`), tự kiểm bố cục byte của máy chủ giả (Python), biên dịch `libaemushim.so` cho armv7 kèm kiểm tra xuất `ab_call`/`ab_status`/`ab_last_len`, rồi kiểm thử đơn vị JVM và APK gỡ lỗi.

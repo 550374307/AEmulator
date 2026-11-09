@@ -38,6 +38,7 @@
 - Der Wiederherstellungsmodus lässt nach dem Beenden keinen gebundenen Input-Socket mehr zurück.
 - Layout von `ab_hello_rep` korrigiert: Der Datensatz ist auf der Leitung 76 Byte groß (2 Byte Padding vor `pid`), nicht 74. Eine statische C11-Zusicherung lässt den Build jetzt fehlschlagen, falls er sich wieder ändert.
 - `lmkd` lässt sich nun tatsächlich gewähren: Es liegt außerhalb der Host-Dienst-Tabelle, aber innerhalb der Fähigkeitsmenge, und eine Gewährung ohne Treffer verschwand früher stillschweigend.
+- Der Capability-Satz ist jetzt sichtbar: die Einstellungen haben einen Abschnitt Host-Dienste mit einem Schalter je Capability, nur für Firmware, deren Kernel-Tag die Brücke exportiert (Android 9+), weil die Schalter auf älteren Images nichts bewirken könnten.
 
 ### Build
 - GitHub Actions baut bei jedem Push: den Bridge-Hosttest (gcc, `SOCK_SEQPACKET`), den Byte-Layout-Selbsttest des Mock-Hosts (Python), eine armv7-Kompilierung von `libaemushim.so` mit Exportprüfung für `ab_call`/`ab_status`/`ab_last_len`, dann die JVM-Unit-Tests und ein Debug-APK.

@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">سرویس‌های میزبان</string>
+    <string name="vs_cap_props">ویژگی‌ها</string>
+    <string name="vs_cap_props_sub">مهمان می‌تواند ویژگی‌هایی را که این نمونه شبیه‌سازی می‌کند بخواند و بنویسد.</string>
+    <string name="vs_cap_clipboard">بریده‌دان</string>
+    <string name="vs_cap_clipboard_sub">اشتراک‌گذاری متن کپی‌شده میان این گوشی و مهمان.</string>
+    <string name="vs_cap_power">توان</string>
+    <string name="vs_cap_power_sub">مهمان می‌تواند درخواست راه‌اندازی مجدد، خاموشی یا بیدارباش بدهد.</string>
+    <string name="vs_cap_lmkd">گزارش‌های کمبود حافظه</string>
+    <string name="vs_cap_lmkd_sub">مهمان می‌گوید کدام فرایندها ابتدا آزاد شوند.</string>
+    <string name="vs_cap_nobridge">این سیستم‌عامل از پل (Android 9) قدیمی‌تر است؛ کلیدهای بالا بر آن اثری ندارند.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">نمایش/پنهان کردن صفحه‌کلید</string>
     <string name="m_paste">Paste text from clipboard</string>

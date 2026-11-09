@@ -38,6 +38,7 @@
 - Le mode récupération ne laisse plus une socket d'entrée liée après sa sortie.
 - Disposition de `ab_hello_rep` corrigée : l'enregistrement fait 76 octets sur le fil (2 octets de remplissage avant `pid`), et non 74. Une assertion statique C11 fait maintenant échouer la compilation s'il change encore.
 - `lmkd` peut enfin être accordé : il vit hors de la table des services de l'hôte mais dans l'ensemble des capacités, et une autorisation qui ne correspondait à rien disparaissait silencieusement.
+- L’ensemble des capacités est désormais visible : les réglages ont une section Services de l’hôte avec un interrupteur par capacité, uniquement pour les firmwares dont le noyau exporte le pont (Android 9+), car sur les images plus anciennes les interrupteurs ne pourraient rien faire.
 
 ### Compilation
 - GitHub Actions compile à chaque push : le test hôte du pont (gcc, `SOCK_SEQPACKET`), l'autotest de disposition d'octets de l'hôte factice (Python), une compilation armv7 de `libaemushim.so` avec vérification des exports `ab_call`/`ab_status`/`ab_last_len`, puis les tests unitaires JVM et un APK de débogage.

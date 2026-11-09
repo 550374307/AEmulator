@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">Dịch vụ máy chủ</string>
+    <string name="vs_cap_props">Thuộc tính</string>
+    <string name="vs_cap_props_sub">Khách được đọc và ghi các thuộc tính mà phiên bản này mô phỏng.</string>
+    <string name="vs_cap_clipboard">Bộ nhớ tạm</string>
+    <string name="vs_cap_clipboard_sub">Chia sẻ văn bản đã sao chép giữa điện thoại này và khách.</string>
+    <string name="vs_cap_power">Nguồn</string>
+    <string name="vs_cap_power_sub">Khách có thể yêu cầu khởi động lại, tắt máy hoặc đánh thức.</string>
+    <string name="vs_cap_lmkd">Báo cáo thiếu bộ nhớ</string>
+    <string name="vs_cap_lmkd_sub">Khách cho biết nên thu hồi tiến trình nào trước.</string>
+    <string name="vs_cap_nobridge">Firmware này cũ hơn cầu nối (Android 9); các công tắc trên không có tác dụng với nó.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">Hiện/ẩn bàn phím</string>
     <string name="m_paste">Paste text from clipboard</string>

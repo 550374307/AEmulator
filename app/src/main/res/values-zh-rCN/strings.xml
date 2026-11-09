@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">宿主服务</string>
+    <string name="vs_cap_props">属性</string>
+    <string name="vs_cap_props_sub">允许 guest 读写本实例所模拟的系统属性。</string>
+    <string name="vs_cap_clipboard">剪贴板</string>
+    <string name="vs_cap_clipboard_sub">在本机与 guest 之间共享复制过的文本。</string>
+    <string name="vs_cap_power">电源</string>
+    <string name="vs_cap_power_sub">允许 guest 请求重启、关机或唤醒。</string>
+    <string name="vs_cap_lmkd">低内存上报</string>
+    <string name="vs_cap_lmkd_sub">guest 告知优先回收哪些进程。</string>
+    <string name="vs_cap_nobridge">该固件早于桥接（Android 9），上面的开关对它无效。</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">显示/隐藏键盘</string>
     <string name="m_paste">Paste text from clipboard</string>

@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">ホストサービス</string>
+    <string name="vs_cap_props">プロパティ</string>
+    <string name="vs_cap_props_sub">ゲストがこのインスタンスのエミュレートするプロパティを読み書きできます。</string>
+    <string name="vs_cap_clipboard">クリップボード</string>
+    <string name="vs_cap_clipboard_sub">コピーしたテキストをこの端末とゲストで共有します。</string>
+    <string name="vs_cap_power">電源</string>
+    <string name="vs_cap_power_sub">ゲストが再起動・電源オフ・復帰を要求できます。</string>
+    <string name="vs_cap_lmkd">低メモリ報告</string>
+    <string name="vs_cap_lmkd_sub">ゲストがどのプロセスを先に解放するかを伝えます。</string>
+    <string name="vs_cap_nobridge">このファームウェアはブリッジ (Android 9) より古いため、上のスイッチは効果がありません。</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">キーボードの表示/非表示</string>
     <string name="m_paste">Paste text from clipboard</string>

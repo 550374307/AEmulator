@@ -38,6 +38,7 @@
 - Mode pemulihan tidak lagi meninggalkan soket input yang terikat setelah keluar.
 - Tata letak `ab_hello_rep` diperbaiki: rekaman berukuran 76 bait di kabel (2 bait padding sebelum `pid`), bukan 74. Asersi statis C11 kini menggagalkan build bila berubah lagi.
 - `lmkd` kini benar-benar bisa diberikan: ia berada di luar tabel layanan host tetapi di dalam himpunan kemampuan, dan pemberian yang tidak cocok dengan apa pun dulu hilang diam-diam.
+- Kumpulan kemampuan kini terlihat: pengaturan punya bagian Layanan host dengan satu sakelar per kemampuan, hanya untuk firmware yang kernel-nya mengekspor jembatan (Android 9+), karena pada image lama sakelar itu tidak akan berpengaruh.
 
 ### Build
 - GitHub Actions membangun pada setiap push: uji host jembatan (gcc, `SOCK_SEQPACKET`), uji mandiri tata letak bait host tiruan (Python), kompilasi `libaemushim.so` untuk armv7 dengan pemeriksaan ekspor `ab_call`/`ab_status`/`ab_last_len`, lalu uji unit JVM dan APK debug.

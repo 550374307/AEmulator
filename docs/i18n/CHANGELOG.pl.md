@@ -38,6 +38,7 @@
 - Tryb odzyskiwania nie zostawia już po wyjściu związanego gniazda wejścia.
 - Poprawiono układ `ab_hello_rep`: rekord ma 76 bajtów na łączu (2 bajty dopełnienia przed `pid`), a nie 74. Statyczne zapewnienie C11 sprawia teraz, że kompilacja się nie powiedzie, jeśli to się znowu zmieni.
 - `lmkd` można teraz naprawdę przyznać: żyje poza tabelą usług hosta, ale w zbiorze zdolności, a przyznanie, które do niczego nie pasowało, znikało wcześniej po cichu.
+- Zestaw uprawnień jest teraz widoczny: w ustawieniach jest sekcja Usługi hosta z przełącznikiem dla każdego uprawnienia, tylko dla oprogramowania, którego jądro eksportuje most (Android 9+), bo na starszych obrazach przełączniki nie mogłyby nic zrobić.
 
 ### Kompilacja
 - GitHub Actions buduje przy każdym pushu: test hosta mostu (gcc, `SOCK_SEQPACKET`), autotest układu bajtów atrapy hosta (Python), kompilację `libaemushim.so` dla armv7 z kontrolą eksportów `ab_call`/`ab_status`/`ab_last_len`, następnie testy jednostkowe JVM i APK debug.

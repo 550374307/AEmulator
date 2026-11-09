@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">خدمات المضيف</string>
+    <string name="vs_cap_props">الخصائص</string>
+    <string name="vs_cap_props_sub">يمكن للضيف قراءة وكتابة الخصائص التي تحاكيها هذه النسخة.</string>
+    <string name="vs_cap_clipboard">الحافظة</string>
+    <string name="vs_cap_clipboard_sub">مشاركة النص المنسوخ بين هذا الهاتف والضيف.</string>
+    <string name="vs_cap_power">الطاقة</string>
+    <string name="vs_cap_power_sub">يمكن للضيف طلب إعادة التشغيل أو الإغلاق أو الإيقاظ.</string>
+    <string name="vs_cap_lmkd">تقارير انخفاض الذاكرة</string>
+    <string name="vs_cap_lmkd_sub">يخبر الضيف أي العمليات تُسترد أولاً.</string>
+    <string name="vs_cap_nobridge">هذا النظام أقدم من الجسر (Android 9)؛ لا تأثير للمفاتيح أعلاه عليه.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">إظهار/إخفاء لوحة المفاتيح</string>
     <string name="m_paste">Paste text from clipboard</string>

@@ -38,6 +38,7 @@
 - Kurtarma kipinden çıkıldığında artık bağlı bir input soketi geride kalmıyor.
 - `ab_hello_rep` yerleşimi düzeltildi: kayıt tel üzerinde 76 bayt (`pid` öncesinde 2 bayt dolgu), 74 değil. Artık yeniden değişirse C11 statik doğrulaması derlemeyi düşürüyor.
 - `lmkd` artık gerçekten verilebiliyor: ana makine hizmet tablosunun dışında ama yetenek kümesinin içinde; önceden hiçbir şeyle eşleşmeyen bir yetki sessizce kayboluyordu.
+- Yetenek kümesi artık görünür: ayarlarda her yetenek için bir anahtar içeren Ana makine servisleri bölümü var; yalnızca çekirdeği köprüyü dışa aktaran yazılımlarda (Android 9+) gösterilir, çünkü eski imajlarda anahtarlar hiçbir şey yapamazdı.
 
 ### Derleme
 - GitHub Actions her push'ta derliyor: köprü ana makine testi (gcc, `SOCK_SEQPACKET`), sahte ana makinenin bayt yerleşimi öz testi (Python), armv7 için `libaemushim.so` derlemesi ve `ab_call`/`ab_status`/`ab_last_len` dışa aktarım denetimi, ardından JVM birim testleri ve hata ayıklama APK'sı.

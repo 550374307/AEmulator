@@ -115,6 +115,16 @@
     <string name="vs_advanced">Додатково</string>
     <string name="vs_qemu_args">Дод. параметри qemu</string>
     <string name="vs_qemu_args_sub">Приклад: -d unimp DHD_TBFLUSH=2 (ІМʼЯ=значення стає змінною оточення)</string>
+    <string name="vs_host_title">Служби хоста</string>
+    <string name="vs_cap_props">Властивості</string>
+    <string name="vs_cap_props_sub">Гість може читати й писати властивості, які емулює цей примірник.</string>
+    <string name="vs_cap_clipboard">Буфер обміну</string>
+    <string name="vs_cap_clipboard_sub">Спільний скопійований текст між телефоном і гостем.</string>
+    <string name="vs_cap_power">Живлення</string>
+    <string name="vs_cap_power_sub">Гість може попросити перезавантаження, вимкнення або пробудження.</string>
+    <string name="vs_cap_lmkd">Звіти про нестачу памʼяті</string>
+    <string name="vs_cap_lmkd_sub">Гість повідомляє, які процеси звільняти першими.</string>
+    <string name="vs_cap_nobridge">Ця прошивка старіша за міст (Android 9); перемикачі вище на неї не впливають.</string>
     <string name="m_power_menu">Меню живлення</string>
     <string name="m_keyboard">Показати/сховати клавіатуру</string>
     <string name="m_paste">Вставити текст з буфера</string>

@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">Layanan host</string>
+    <string name="vs_cap_props">Properti</string>
+    <string name="vs_cap_props_sub">Tamu boleh membaca dan menulis properti yang diemulasikan instans ini.</string>
+    <string name="vs_cap_clipboard">Papan klip</string>
+    <string name="vs_cap_clipboard_sub">Bagikan teks yang disalin antara ponsel ini dan tamu.</string>
+    <string name="vs_cap_power">Daya</string>
+    <string name="vs_cap_power_sub">Tamu boleh meminta mulai ulang, matikan, atau bangunkan.</string>
+    <string name="vs_cap_lmkd">Laporan memori rendah</string>
+    <string name="vs_cap_lmkd_sub">Tamu memberi tahu proses mana yang diambil lebih dulu.</string>
+    <string name="vs_cap_nobridge">Firmware ini lebih tua dari jembatan (Android 9); sakelar di atas tidak berpengaruh padanya.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">Tampilkan/sembunyikan keyboard</string>
     <string name="m_paste">Paste text from clipboard</string>

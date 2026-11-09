@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import app.aemu.core.CpuInfo
 import app.aemu.core.Engine
 import app.aemu.core.GuestImage
+import app.aemu.core.HostServices
+import app.aemu.core.Kernel64
 import app.aemu.core.VmSettings
 
 private data class Res(val label: String, val w: Int, val h: Int, val dpi: Int)
@@ -132,6 +134,9 @@ fun SettingsSheet(img: GuestImage, onDismiss: () -> Unit, onSave: (VmSettings) -
                 TextButton(onClick = { s = s.copy(imei = VmSettings.randomImei()) }) { Text(stringResource(R.string.vs_random)) }
             }
 
+            Spacer(Modifier.height(12.dp))
+            HostServicesSection(s, img) { s = it }
+
             Spacer(Modifier.height(8.dp))
             Text(stringResource(R.string.vs_advanced), style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(value = s.qemuArgs, onValueChange = { s = s.copy(qemuArgs = it) },
@@ -196,6 +201,35 @@ private fun NumField(label: String, value: Int, modifier: Modifier, set: (Int) -
     OutlinedTextField(value = text, onValueChange = { v -> text = v.filter(Char::isDigit).take(4); text.toIntOrNull()?.let(set) },
         label = { Text(label) }, singleLine = true, modifier = modifier,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+}
+
+/**
+ * Which host services this VM may call over the bridge.
+ *
+ * Only offered where the kernel tag actually exports the socket ([Kernel64.bridgeV1], Android 9+).
+ * On older firmware there is no client in the shim, so the section says so rather than showing four
+ * switches that could never do anything. Grants are read once when the instance is built, so a change
+ * here takes effect at the next boot, like the rest of this sheet.
+ */
+@Composable
+private fun HostServicesSection(s: VmSettings, img: GuestImage, set: (VmSettings) -> Unit) {
+    Text(stringResource(R.string.vs_host_title), style = MaterialTheme.typography.titleMedium)
+    if (!Kernel64.forApi(img.api).bridgeV1) {
+        Text(stringResource(R.string.vs_cap_nobridge), style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
+    } else {
+        CapToggle(R.string.vs_cap_props, R.string.vs_cap_props_sub, HostServices.PROPS, s, set)
+        CapToggle(R.string.vs_cap_clipboard, R.string.vs_cap_clipboard_sub, HostServices.CLIPBOARD, s, set)
+        CapToggle(R.string.vs_cap_power, R.string.vs_cap_power_sub, HostServices.POWER, s, set)
+        CapToggle(R.string.vs_cap_lmkd, R.string.vs_cap_lmkd_sub, HostServices.LMKD, s, set)
+    }
+}
+
+@Composable
+private fun CapToggle(title: Int, sub: Int, cap: String, s: VmSettings, set: (VmSettings) -> Unit) {
+    Toggle(stringResource(title), stringResource(sub), cap in s.hostCaps) { on ->
+        set(s.copy(hostCaps = if (on) s.hostCaps + cap else s.hostCaps - cap))
+    }
 }
 
 /** Recovery of this firmware: stock one from the import, or a custom recovery.img (TWRP, OrangeFox, CWM…). */

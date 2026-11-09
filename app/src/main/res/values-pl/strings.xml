@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">Usługi hosta</string>
+    <string name="vs_cap_props">Właściwości</string>
+    <string name="vs_cap_props_sub">Gość może czytać i zapisywać właściwości emulowane przez tę instancję.</string>
+    <string name="vs_cap_clipboard">Schowek</string>
+    <string name="vs_cap_clipboard_sub">Udostępniaj skopiowany tekst między tym telefonem a gościem.</string>
+    <string name="vs_cap_power">Zasilanie</string>
+    <string name="vs_cap_power_sub">Gość może poprosić o restart, wyłączenie lub wybudzenie.</string>
+    <string name="vs_cap_lmkd">Raporty małej pamięci</string>
+    <string name="vs_cap_lmkd_sub">Gość wskazuje, które procesy zwolnić najpierw.</string>
+    <string name="vs_cap_nobridge">To oprogramowanie jest starsze niż most (Android 9); powyższe przełączniki nic dla niego nie zmieniają.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">Pokaż/ukryj klawiaturę</string>
     <string name="m_paste">Paste text from clipboard</string>

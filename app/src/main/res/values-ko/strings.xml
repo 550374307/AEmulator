@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">호스트 서비스</string>
+    <string name="vs_cap_props">속성</string>
+    <string name="vs_cap_props_sub">게스트가 이 인스턴스가 에뮬레이트하는 속성을 읽고 쓸 수 있습니다.</string>
+    <string name="vs_cap_clipboard">클립보드</string>
+    <string name="vs_cap_clipboard_sub">복사한 텍스트를 이 기기와 게스트 사이에서 공유합니다.</string>
+    <string name="vs_cap_power">전원</string>
+    <string name="vs_cap_power_sub">게스트가 재부팅, 종료, 깨우기를 요청할 수 있습니다.</string>
+    <string name="vs_cap_lmkd">저메모리 보고</string>
+    <string name="vs_cap_lmkd_sub">게스트가 어떤 프로세스를 먼저 회수할지 알려 줍니다.</string>
+    <string name="vs_cap_nobridge">이 펌웨어는 브리지(Android 9)보다 오래되어 위 스위치가 적용되지 않습니다.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">키보드 표시/숨기기</string>
     <string name="m_paste">Paste text from clipboard</string>

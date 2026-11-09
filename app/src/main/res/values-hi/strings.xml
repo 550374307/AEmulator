@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">होस्ट सेवाएँ</string>
+    <string name="vs_cap_props">गुण</string>
+    <string name="vs_cap_props_sub">अतिथि इस इंस्टेंस द्वारा अनुकरण किए गए गुण पढ़ और लिख सकता है।</string>
+    <string name="vs_cap_clipboard">क्लिपबोर्ड</string>
+    <string name="vs_cap_clipboard_sub">कॉपी किया गया टेक्स्ट इस फ़ोन और अतिथि के बीच साझा करें।</string>
+    <string name="vs_cap_power">पावर</string>
+    <string name="vs_cap_power_sub">अतिथि रीबूट, शटडाउन या वेक की माँग कर सकता है।</string>
+    <string name="vs_cap_lmkd">कम मेमोरी रिपोर्ट</string>
+    <string name="vs_cap_lmkd_sub">अतिथि बताता है कि कौन से प्रोसेस पहले खाली करने हैं।</string>
+    <string name="vs_cap_nobridge">यह फ़र्मवेयर ब्रिज (Android 9) से पुराना है; ऊपर के स्विच इस पर काम नहीं करते।</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">कीबोर्ड दिखाएँ/छिपाएँ</string>
     <string name="m_paste">Paste text from clipboard</string>

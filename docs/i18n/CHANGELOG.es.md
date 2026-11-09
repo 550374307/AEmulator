@@ -38,6 +38,7 @@
 - El modo de recuperación ya no deja un socket de entrada vinculado tras salir.
 - Corregida la disposición de `ab_hello_rep`: el registro mide 76 bytes en el cable (2 bytes de relleno antes de `pid`), no 74. Una aserción estática de C11 ahora rompe la compilación si vuelve a cambiar.
 - `lmkd` ya se puede conceder de verdad: vive fuera de la tabla de servicios del host pero dentro del conjunto de capacidades, y una concesión que no coincidía con nada desaparecía en silencio.
+- El conjunto de capacidades ahora es visible: los ajustes tienen una sección Servicios del host con un interruptor por capacidad, solo para firmwares cuyo kernel exporta el puente (Android 9+), porque en imágenes más antiguas los interruptores no podrían hacer nada.
 
 ### Compilación
 - GitHub Actions compila en cada push: la prueba de host del puente (gcc, `SOCK_SEQPACKET`), la autoprueba de disposición de bytes del host simulado (Python), una compilación armv7 de `libaemushim.so` con verificación de exportación de `ab_call`/`ab_status`/`ab_last_len`, y luego las pruebas unitarias de JVM y un APK de depuración.

@@ -38,6 +38,7 @@
 - 恢复模式退出后不再遗留一个仍被绑定的 input socket。
 - 修正 `ab_hello_rep` 的布局：线格式上是 76 字节（`pid` 前有 2 字节填充），不是 74。现在有 C11 静态断言，一旦再变就编译失败。
 - `lmkd` 现在真的能被授予了：它不在宿主服务表里，但在能力集合里；以前匹配不到任何服务的授权会被静默丢弃。
+- 能力集合现在可见：设置里有「宿主服务」一节，每个能力一个开关。只在固件内核导出桥接（Android 9 及以上）时显示——更早的镜像上开关什么也做不了。
 
 ### 构建
 - 每次 push 都由 GitHub Actions 构建：桥的主机测试（gcc，`SOCK_SEQPACKET`）、mock 宿主的字节布局自测（Python）、armv7 版 `libaemushim.so` 编译并检查 `ab_call`/`ab_status`/`ab_last_len` 三个导出符号，然后是 JVM 单元测试和 debug APK。

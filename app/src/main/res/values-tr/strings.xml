@@ -115,6 +115,16 @@
     <string name="vs_advanced">Advanced</string>
     <string name="vs_qemu_args">Extra qemu options</string>
     <string name="vs_qemu_args_sub">Example: -d unimp DHD_TBFLUSH=2 (NAME=value becomes an environment variable)</string>
+    <string name="vs_host_title">Ana makine servisleri</string>
+    <string name="vs_cap_props">Özellikler</string>
+    <string name="vs_cap_props_sub">Konuk, bu örneğin öykündüğü özellikleri okuyup yazabilir.</string>
+    <string name="vs_cap_clipboard">Pano</string>
+    <string name="vs_cap_clipboard_sub">Kopyalanan metni bu telefonla konuk arasında paylaş.</string>
+    <string name="vs_cap_power">Güç</string>
+    <string name="vs_cap_power_sub">Konuk yeniden başlatma, kapatma veya uyandırma isteyebilir.</string>
+    <string name="vs_cap_lmkd">Düşük bellek bildirimleri</string>
+    <string name="vs_cap_lmkd_sub">Konuk hangi süreçlerin önce boşaltılacağını bildirir.</string>
+    <string name="vs_cap_nobridge">Bu yazılım köprüden (Android 9) eski; yukarıdaki anahtarların ona etkisi yok.</string>
     <string name="m_power_menu">Power menu</string>
     <string name="m_keyboard">Klavyeyi göster/gizle</string>
     <string name="m_paste">Paste text from clipboard</string>
