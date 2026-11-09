@@ -749,6 +749,14 @@ class GuestVm(val ctx: Context, val img: GuestImage) {
                 if (names.isNotEmpty()) startService(GuestService("aemu-standin", listOf("/system/bin/app_process",
                     "-Djava.class.path=/system/framework/aemu-stubs.jar", "/system/bin", "app.aemu.stub.StandIn") + names, optional = true))
             }
+            // The one guest process that actually speaks bproto2. Only where the kernel tag exports
+            // AEMU64_BRIDGE (bridgeV1, API 28+): older tags have no client in the shim and no socket
+            // to connect to, so starting this there would just spin on connect() forever.
+            if (svc.name == "zygote" && kernel.bridgeV1 && File(paths.root, "system/framework/aemu-stubs.jar").isFile) {
+                synchronized(procs) { procs.remove("aemu-bridge") }?.let { runCatching { it.destroyForcibly() } }
+                startService(GuestService("aemu-bridge", listOf("/system/bin/app_process",
+                    "-Djava.class.path=/system/framework/aemu-stubs.jar", "/system/bin", "app.aemu.stub.BridgeStub"), optional = true))
+            }
             startService(svc)
             svc.waitSocket?.let { sock -> waitFor("socket $sock", 20_000) { paths.socket(sock).exists() } }
             if (svc.delayMs > 0) Thread.sleep(svc.delayMs)

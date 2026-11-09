@@ -165,6 +165,41 @@ jobs:
             echo "platform 36 and build-tools 36.0.0 already present"
           fi
 
+      - name: rebuild aemu-stubs.jar and compare it with the checked-in one
+        run: |
+          # The jar is the only guest-side consumer of bproto2 (BridgeStub), and until now
+          # nothing rebuilt it but a human with a workstation. Build it into a scratch dir and
+          # require that it still compiles.
+          #
+          # The comparison is "the shipped jar's classes are all still there", not a byte or even
+          # a set equality check: the dex is produced by whatever d8 the image ships, which is a
+          # different version than the one that built the checked-in jar, and a newer d8 is free
+          # to emit different synthetic classes. What must not happen is a stub disappearing from
+          # the build while the jar in git keeps it.
+          sh native/gueststubs/build.sh "$RUNNER_TEMP/out/aemu-stubs.jar"
+          ls -l "$RUNNER_TEMP/out/aemu-stubs.jar"
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)
+          HERE=$(pwd)
+          for side in built shipped; do
+            case $side in
+              built)   JAR="$RUNNER_TEMP/out/aemu-stubs.jar" ;;
+              shipped) JAR="$HERE/app/src/main/assets/engines/kk/aemu-stubs.jar" ;;
+            esac
+            rm -rf "$RUNNER_TEMP/$side" && mkdir -p "$RUNNER_TEMP/$side"
+            ( cd "$RUNNER_TEMP/$side" && unzip -o -q "$JAR" classes.dex )
+            "${BT}dexdump" -f "$RUNNER_TEMP/$side/classes.dex" \
+              | grep 'Class descriptor' | sed 's/^ *//' | sort -u > "$RUNNER_TEMP/$side.txt"
+          done
+          comm -23 "$RUNNER_TEMP/shipped.txt" "$RUNNER_TEMP/built.txt" > "$RUNNER_TEMP/missing.txt" || true
+          if [ -s "$RUNNER_TEMP/missing.txt" ]; then
+            echo "classes in the checked-in jar that the build no longer produces:" >&2
+            cat "$RUNNER_TEMP/missing.txt" >&2
+            exit 1
+          fi
+          # and the bridge stub has to be in it, or the shipped jar predates the guest client
+          grep -q "app/aemu/stub/BridgeStub" "$RUNNER_TEMP/built.txt"
+          echo "guest stubs rebuilt: $(wc -l < "$RUNNER_TEMP/built.txt") classes"
+
       - name: gradle cache
         uses: actions/cache@v5
         with:
